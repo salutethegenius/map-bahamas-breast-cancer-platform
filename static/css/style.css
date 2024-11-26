@@ -35,16 +35,19 @@ body {
 
 /* Package Cards */
 .package-card {
-    border: 1px solid #ddd;
+    border: 1px solid #dee2e6;
     border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 30px;
-    transition: transform 0.3s;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.package-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+.package-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: #333;
+    text-align: center;
 }
 
 .package-card.special {
@@ -52,16 +55,36 @@ body {
 }
 
 .package-image {
-    height: 200px;
+    width: 100%;
+    height: 250px;
     overflow: hidden;
     border-radius: 4px;
-    margin: 15px 0;
+    margin-bottom: 1.5rem;
 }
 
 .package-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+.package-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.package-features li {
+    padding: 0.5rem 0;
+    font-size: 1rem;
+    color: #555;
+}
+
+.deadline {
+    color: var(--primary-pink);
+    font-weight: bold;
+    text-align: center;
+    font-size: 1.1rem;
 }
 
 /* Form Styles */
