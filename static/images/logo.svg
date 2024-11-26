@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="50" viewBox="0 0 200 50">
+  <style>
+    .logo-text { fill: #ff69b4; font-family: Arial, sans-serif; font-weight: bold; }
+    .ribbon { fill: #ff69b4; }
+  </style>
+  <g transform="translate(10, 35)">
+    <path class="ribbon" d="M0,0 C5,-10 10,-10 15,0 C20,-10 25,-10 30,0 L27,5 L3,5 Z"/>
+    <text x="40" y="0" class="logo-text" font-size="24">MAP BAHAMAS</text>
+  </g>
+</svg>

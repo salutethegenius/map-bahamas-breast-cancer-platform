@@ -2,28 +2,36 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form navigation
     const sections = document.querySelectorAll('.form-section');
     const progressBar = document.querySelector('.progress-bar');
-    let currentSection = 0;
+    const registrationForm = document.getElementById('registrationForm');
+    
+    // Only initialize form navigation if we're on the registration page
+    if (registrationForm) {
+        let currentSection = 0;
 
-    function updateProgress() {
-        const progress = ((currentSection + 1) / sections.length) * 100;
-        progressBar.style.width = progress + '%';
-    }
+        function updateProgress() {
+            if (progressBar) {
+                const progress = ((currentSection + 1) / sections.length) * 100;
+                progressBar.style.width = progress + '%';
+            }
+        }
 
-    function showSection(index) {
-        sections.forEach(section => section.classList.remove('active'));
-        sections[index].classList.add('active');
-        
-        // Update navigation buttons
-        const prevBtn = document.getElementById('prev');
-        const nextBtn = document.getElementById('next');
-        const submitBtn = document.getElementById('submit');
-        
-        prevBtn.style.display = index === 0 ? 'none' : 'block';
-        nextBtn.style.display = index === sections.length - 1 ? 'none' : 'block';
-        submitBtn.style.display = index === sections.length - 1 ? 'block' : 'none';
-        
-        updateProgress();
-    }
+        function showSection(index) {
+            sections.forEach(section => section.classList.remove('active'));
+            sections[index].classList.add('active');
+            
+            // Update navigation buttons
+            const prevBtn = document.getElementById('prev');
+            const nextBtn = document.getElementById('next');
+            const submitBtn = document.getElementById('submit');
+            
+            if (prevBtn && nextBtn && submitBtn) {
+                prevBtn.style.display = index === 0 ? 'none' : 'block';
+                nextBtn.style.display = index === sections.length - 1 ? 'none' : 'block';
+                submitBtn.style.display = index === sections.length - 1 ? 'block' : 'none';
+            }
+            
+            updateProgress();
+        }
 
     // Next button handler
     document.getElementById('next').addEventListener('click', function() {

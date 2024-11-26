@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="hero-section" style="background-image: url('https://images.unsplash.com/photo-1559956144-83a135c9872e');">
+<div class="hero-section" style="background-image: url('{{ url_for('static', filename='images/hero-background.jpg') }}');">
     <div class="container">
         <div class="row">
             <div class="col-md-8 offset-md-2 text-center text-white">
@@ -21,7 +21,7 @@
                 <div class="package-card">
                     <h3>1 Mile Package</h3>
                     <div class="package-image">
-                        <img src="https://images.unsplash.com/photo-1507653050-4053dc17dfbb" alt="1 Mile Package">
+                        <img src="{{ url_for('static', filename='images/mile-package.jpg') }}" alt="1 Mile Package">
                     </div>
                     <ul class="package-features">
                         <li>Premium branding placement</li>
@@ -34,7 +34,7 @@
                 <div class="package-card">
                     <h3>½ Mile Package</h3>
                     <div class="package-image">
-                        <img src="https://images.unsplash.com/photo-1598884143267-586d90a32141" alt="½ Mile Package">
+                        <img src="{{ url_for('static', filename='images/half-mile-package.jpg') }}" alt="½ Mile Package">
                     </div>
                     <ul class="package-features">
                         <li>Featured branding</li>
@@ -47,7 +47,7 @@
                 <div class="package-card special">
                     <h3>Black Friday Special</h3>
                     <div class="package-image">
-                        <img src="https://images.unsplash.com/photo-1522576775862-7168ae29372c" alt="Black Friday Special">
+                        <img src="{{ url_for('static', filename='images/black-friday-package.jpg') }}" alt="Black Friday Special">
                     </div>
                     <ul class="package-features">
                         <li>50% off regular packages</li>
