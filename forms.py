@@ -1,6 +1,10 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, SelectField, FileField
+from wtforms import StringField, TextAreaField, SelectField, FileField, PasswordField
 from wtforms.validators import DataRequired, Email, Length
+
+class LoginForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
 
 class CompanyRegistrationForm(FlaskForm):
     company_name = StringField('Company Name', validators=[DataRequired(), Length(min=2, max=200)])

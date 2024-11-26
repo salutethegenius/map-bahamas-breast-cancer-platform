@@ -3,6 +3,8 @@ from datetime import datetime
 from flask import Flask, render_template, request, flash, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail, Message
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from sqlalchemy.orm import DeclarativeBase
 
@@ -30,6 +32,37 @@ app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return db.session.get(User, int(user_id))
+
+from models import Company, User
+from forms import CompanyRegistrationForm, LoginForm
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and user.check_password(form.password.data):
+            login_user(user)
+            return redirect(url_for('dashboard'))
+        flash('Invalid email or password', 'error')
+    return render_template('auth/login.html', form=form)
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
 db.init_app(app)
 mail = Mail(app)
 
@@ -166,3 +199,9 @@ def load_test_data():
 
 with app.app_context():
     db.create_all()
+    # Create admin user if it doesn't exist
+    if not User.query.filter_by(email='admin@mapbahamas.com').first():
+        admin = User(email='admin@mapbahamas.com', is_admin=True)
+        admin.set_password('adminpass123')  # This is a temporary password
+        db.session.add(admin)
+        db.session.commit()
