@@ -1,0 +1,108 @@
+:root {
+    --primary-pink: #ff69b4;
+    --secondary-blue: #4fb3bf;
+    --accent-sand: #f5e6ca;
+}
+
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+}
+
+/* Hero Section */
+.hero-section {
+    background-size: cover;
+    background-position: center;
+    padding: 150px 0;
+    position: relative;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.hero-section .container {
+    position: relative;
+    z-index: 1;
+}
+
+/* Package Cards */
+.package-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    transition: transform 0.3s;
+}
+
+.package-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.package-card.special {
+    border-color: var(--primary-pink);
+}
+
+.package-image {
+    height: 200px;
+    overflow: hidden;
+    border-radius: 4px;
+    margin: 15px 0;
+}
+
+.package-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Form Styles */
+.form-section {
+    display: none;
+    margin-bottom: 30px;
+}
+
+.form-section.active {
+    display: block;
+}
+
+.progress {
+    height: 8px;
+}
+
+.progress-bar {
+    background-color: var(--primary-pink);
+}
+
+.form-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+/* Confirmation Page */
+.confirmation-box {
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 100px 0;
+    }
+    
+    .package-card {
+        margin-bottom: 20px;
+    }
+}

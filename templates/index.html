@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section" style="background-image: url('https://images.unsplash.com/photo-1559956144-83a135c9872e');">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 offset-md-2 text-center text-white">
+                <h1>Join MAP Bahamas in Supporting Breast Cancer Awareness</h1>
+                <p class="lead">Make a difference in our community through corporate sponsorship</p>
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Become a Sponsor</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="packages py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Sponsorship Packages</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="package-card">
+                    <h3>1 Mile Package</h3>
+                    <div class="package-image">
+                        <img src="https://images.unsplash.com/photo-1507653050-4053dc17dfbb" alt="1 Mile Package">
+                    </div>
+                    <ul class="package-features">
+                        <li>Premium branding placement</li>
+                        <li>VIP event access</li>
+                        <li>Media coverage</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="package-card">
+                    <h3>½ Mile Package</h3>
+                    <div class="package-image">
+                        <img src="https://images.unsplash.com/photo-1598884143267-586d90a32141" alt="½ Mile Package">
+                    </div>
+                    <ul class="package-features">
+                        <li>Featured branding</li>
+                        <li>Event participation</li>
+                        <li>Social media promotion</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="package-card special">
+                    <h3>Black Friday Special</h3>
+                    <div class="package-image">
+                        <img src="https://images.unsplash.com/photo-1522576775862-7168ae29372c" alt="Black Friday Special">
+                    </div>
+                    <ul class="package-features">
+                        <li>50% off regular packages</li>
+                        <li>5 event tickets</li>
+                        <li>Limited time offer</li>
+                    </ul>
+                    <div class="deadline">Offer ends January 6th</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

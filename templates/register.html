@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="registration-section py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <h2 class="text-center mb-4">Sponsor Registration</h2>
+                <div class="progress mb-4">
+                    <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                </div>
+                
+                <form method="POST" enctype="multipart/form-data" id="registrationForm">
+                    {{ form.csrf_token }}
+                    
+                    <div class="form-section active" id="company-details">
+                        <h3>Company Details</h3>
+                        <div class="mb-3">
+                            {{ form.company_name.label(class="form-label") }}
+                            {{ form.company_name(class="form-control") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.company_address.label(class="form-label") }}
+                            {{ form.company_address(class="form-control") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.company_email.label(class="form-label") }}
+                            {{ form.company_email(class="form-control") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.company_phone.label(class="form-label") }}
+                            {{ form.company_phone(class="form-control") }}
+                        </div>
+                    </div>
+
+                    <div class="form-section" id="contact-details">
+                        <h3>Contact Person Details</h3>
+                        <div class="mb-3">
+                            {{ form.contact_name.label(class="form-label") }}
+                            {{ form.contact_name(class="form-control") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.contact_email.label(class="form-label") }}
+                            {{ form.contact_email(class="form-control") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.contact_phone.label(class="form-label") }}
+                            {{ form.contact_phone(class="form-control") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.contact_photo.label(class="form-label") }}
+                            {{ form.contact_photo(class="form-control") }}
+                            <div id="photoPreview" class="mt-2"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-section" id="package-selection">
+                        <h3>Package Selection</h3>
+                        <div class="mb-3">
+                            {{ form.package_tier.label(class="form-label") }}
+                            {{ form.package_tier(class="form-control") }}
+                        </div>
+                        <div id="calendar-section" class="mb-3">
+                            <label class="form-label">Select Payment Date</label>
+                            <input type="date" class="form-control" name="payment_date" required>
+                        </div>
+                    </div>
+
+                    <div class="form-navigation">
+                        <button type="button" class="btn btn-secondary" id="prev">Previous</button>
+                        <button type="button" class="btn btn-primary" id="next">Next</button>
+                        <button type="submit" class="btn btn-success" id="submit">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

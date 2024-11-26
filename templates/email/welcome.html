@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #ff69b4; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; }
+        .footer { text-align: center; padding: 20px; background-color: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Welcome to MAP Bahamas Sponsorship Program</h1>
+        </div>
+        <div class="content">
+            <p>Dear {{ company.contact_name }},</p>
+            <p>Thank you for registering {{ company.name }} as a sponsor for MAP Bahamas' breast cancer awareness initiative.</p>
+            
+            <h2>Your Package Details:</h2>
+            <ul>
+                <li>Selected Package: {{ company.package_tier }}</li>
+                {% if company.is_black_friday %}
+                <li>Black Friday Special Discount Applied</li>
+                <li>5 Event Tickets Included</li>
+                {% endif %}
+                <li>Scheduled Payment Date: {{ company.payment_date.strftime('%B %d, %Y') }}</li>
+            </ul>
+
+            <p>We will be in touch shortly with additional information about your sponsorship benefits and next steps.</p>
+        </div>
+        <div class="footer">
+            <p>MAP Bahamas - Making a Difference Together</p>
+        </div>
+    </div>
+</body>
+</html>
