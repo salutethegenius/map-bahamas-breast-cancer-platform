@@ -2,13 +2,23 @@
 
 {% block content %}
 <div class="container py-5">
-    <h2 class="mb-4">Sponsor Registrations Dashboard</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Sponsor Registrations Dashboard</h2>
+        <button class="btn btn-success" onclick="exportToCSV()">
+            <i class="fas fa-download"></i> Export Data
+        </button>
+    </div>
     
     <div class="card mb-4">
         <div class="card-body">
             <div class="row mb-3">
                 <div class="col-md-4">
-                    <input type="text" id="searchInput" class="form-control" placeholder="Search companies...">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search companies...">
+                    </div>
                 </div>
                 <div class="col-md-4">
                     <select id="packageFilter" class="form-select">
@@ -22,7 +32,7 @@
             </div>
             
             <div class="table-responsive">
-                <table class="table table-striped" id="registrationsTable">
+                <table class="table table-striped table-hover" id="registrationsTable">
                     <thead>
                         <tr>
                             <th>Company Name</th>
@@ -31,16 +41,32 @@
                             <th>Registration Date</th>
                             <th>Payment Date</th>
                             <th>Status</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for reg in registrations %}
                         <tr>
                             <td>{{ reg.name }}</td>
-                            <td>{{ reg.package_tier }}</td>
                             <td>
-                                {{ reg.contact_name }}<br>
-                                <small class="text-muted">{{ reg.contact_email }}</small>
+                                <span class="badge bg-primary">{{ reg.package_tier }}</span>
+                                {% if reg.is_black_friday %}
+                                <span class="badge bg-dark">Black Friday</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if reg.contact_photo %}
+                                    <img src="{{ url_for('static', filename=reg.contact_photo) }}" 
+                                         alt="Contact photo" 
+                                         class="rounded-circle me-2"
+                                         style="width: 32px; height: 32px; object-fit: cover;">
+                                    {% endif %}
+                                    <div>
+                                        {{ reg.contact_name }}<br>
+                                        <small class="text-muted">{{ reg.contact_email }}</small>
+                                    </div>
+                                </div>
                             </td>
                             <td>{{ reg.created_at.strftime('%Y-%m-%d') }}</td>
                             <td>{{ reg.payment_date.strftime('%Y-%m-%d') if reg.payment_date else 'Not set' }}</td>
@@ -53,6 +79,14 @@
                                     <span class="badge bg-danger">No Payment Date</span>
                                 {% endif %}
                             </td>
+                            <td>
+                                <button class="btn btn-sm btn-info" 
+                                        onclick="viewDetails('{{ reg.id }}')"
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#detailsModal">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -61,4 +95,41 @@
         </div>
     </div>
 </div>
+
+<!-- Details Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sponsor Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalContent">
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://kit.fontawesome.com/a076d05399.js"></script>
+<script>
+function exportToCSV() {
+    window.location.href = "{{ url_for('export_registrations') }}";
+}
+
+function viewDetails(id) {
+    fetch(`/registration/${id}`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('modalContent').innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('modalContent').innerHTML = 'Error loading details';
+        });
+}
+</script>
 {% endblock %}

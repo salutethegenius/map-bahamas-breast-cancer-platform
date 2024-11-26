@@ -220,3 +220,42 @@ def dashboard():
     return render_template('dashboard/index.html', 
                          registrations=registrations,
                          now=datetime.utcnow())
+
+@app.route('/registration/<int:id>')
+@login_required
+def registration_details(id):
+    registration = Company.query.get_or_404(id)
+    return render_template('dashboard/registration_details.html', registration=registration)
+
+@app.route('/export_registrations')
+@login_required
+def export_registrations():
+    registrations = Company.query.order_by(Company.created_at.desc()).all()
+    
+    output = io.StringIO()
+    writer = csv.writer(output)
+    
+    # Write headers
+    writer.writerow(['Company Name', 'Package Tier', 'Contact Name', 'Contact Email',
+                    'Registration Date', 'Payment Date', 'Status'])
+    
+    # Write data
+    for reg in registrations:
+        status = 'Paid' if reg.payment_date and reg.payment_date <= datetime.utcnow() else 'Pending'
+        writer.writerow([
+            reg.name,
+            reg.package_tier,
+            reg.contact_name,
+            reg.contact_email,
+            reg.created_at.strftime('%Y-%m-%d'),
+            reg.payment_date.strftime('%Y-%m-%d') if reg.payment_date else 'Not set',
+            status
+        ])
+    
+    # Create the response
+    output.seek(0)
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': 'attachment; filename=registrations.csv'}
+    )
