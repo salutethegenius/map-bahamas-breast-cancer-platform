@@ -1,11 +1,6 @@
-// Global function declarations
-let initializeDashboard;
-let viewDetails;
-let exportToCSV;
-
 document.addEventListener('DOMContentLoaded', function() {
     // Dashboard initialization function
-    initializeDashboard = function() {
+    function initializeDashboard() {
         try {
             const searchInput = document.getElementById('searchInput');
             const packageFilter = document.getElementById('packageFilter');
@@ -21,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Error initializing dashboard:', error);
         }
-    };
+    }
 
     // Table filtering function
     function filterTable() {
@@ -62,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // View registration details function
-    viewDetails = function(id) {
+    function viewDetails(id) {
         try {
             fetch(`/registration/${id}`)
                 .then(response => {
@@ -88,16 +83,16 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Error in viewDetails:', error);
         }
-    };
+    }
 
     // Export to CSV function
-    exportToCSV = function() {
+    function exportToCSV() {
         try {
             window.location.href = "/export_registrations";
         } catch (error) {
             console.error('Error exporting to CSV:', error);
         }
-    };
+    }
 
     // Form initialization and validation
     function initializeForm() {
@@ -150,6 +145,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 showSection(0);
             }
+
+            // Handle form submission
+            const form = document.getElementById('registrationForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    if (!validateCurrentSection()) {
+                        e.preventDefault();
+                        return false;
+                    }
+                    
+                    // Check if payment date is selected
+                    const paymentDate = form.querySelector('input[name="payment_date"]');
+                    if (!paymentDate || !paymentDate.value) {
+                        e.preventDefault();
+                        alert('Please select a payment date');
+                        return false;
+                    }
+                    
+                    // Submit form naturally
+                    return true;
+                });
+            }
         } catch (error) {
             console.error('Error initializing form:', error);
         }
@@ -198,80 +215,58 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Photo preview functionality
-    try {
-        const photoInput = document.querySelector('input[type="file"]');
-        const previewDiv = document.getElementById('photoPreview');
+    function initializePhotoPreview() {
+        try {
+            const photoInput = document.querySelector('input[type="file"]');
+            const previewDiv = document.getElementById('photoPreview');
 
-        if (photoInput && previewDiv) {
-            photoInput.addEventListener('change', (e) => {
-                try {
-                    const file = e.target.files[0];
-                    if (file) {
-                        if (file.size > 16 * 1024 * 1024) {
-                            alert('File size exceeds 16MB limit');
-                            e.target.value = '';
+            if (photoInput && previewDiv) {
+                photoInput.addEventListener('change', (e) => {
+                    try {
+                        const file = e.target.files[0];
+                        if (file) {
+                            if (file.size > 16 * 1024 * 1024) {
+                                alert('File size exceeds 16MB limit');
+                                e.target.value = '';
+                                previewDiv.innerHTML = '';
+                                return;
+                            }
+
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                previewDiv.innerHTML = `
+                                    <img src="${e.target.result}" 
+                                         alt="Contact photo preview" 
+                                         style="max-width: 200px; max-height: 200px; border-radius: 4px;">`;
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
                             previewDiv.innerHTML = '';
-                            return;
                         }
-
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
-                            previewDiv.innerHTML = `
-                                <img src="${e.target.result}" 
-                                     alt="Contact photo preview" 
-                                     style="max-width: 200px; max-height: 200px; border-radius: 4px;">`;
-                        };
-                        reader.readAsDataURL(file);
-                    } else {
+                    } catch (error) {
+                        console.error('Error handling file:', error);
                         previewDiv.innerHTML = '';
                     }
-                } catch (error) {
-                    console.error('Error handling file:', error);
-                    previewDiv.innerHTML = '';
-                }
-            });
+                });
+            }
+        } catch (error) {
+            console.error('Error setting up photo preview:', error);
         }
-    } catch (error) {
-        console.error('Error setting up photo preview:', error);
     }
 
-    // Initialize based on page
-    if (document.querySelector('.form-section')) {
-        initializeForm();
-    }
-
-    if (document.getElementById('registrationsTable')) {
+    // Initialize based on page content
+    const dashboardTable = document.getElementById('registrationsTable');
+    if (dashboardTable) {
         initializeDashboard();
     }
 
-    // Handle form submission
-    try {
-        const form = document.getElementById('registrationForm');
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                if (!validateCurrentSection()) {
-                    e.preventDefault();
-                    return false;
-                }
-                
-                // Check if payment date is selected
-                const paymentDate = form.querySelector('input[name="payment_date"]');
-                if (!paymentDate || !paymentDate.value) {
-                    e.preventDefault();
-                    alert('Please select a payment date');
-                    return false;
-                }
-                
-                // If all validation passes, let the form submit naturally
-                return true;
-            });
-        }
-    } catch (error) {
-        console.error('Error setting up form submission:', error);
+    const registrationForm = document.getElementById('registrationForm');
+    if (registrationForm) {
+        initializeForm();
+        initializePhotoPreview();
     }
-});
 
-// Make functions globally available
-window.initializeDashboard = initializeDashboard;
-window.viewDetails = viewDetails;
-window.exportToCSV = exportToCSV;
+    // Make necessary functions available globally
+    window.viewDetails = viewDetails;
+    window.exportToCSV = exportToCSV;
+});
