@@ -246,13 +246,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle form submission
     try {
-        const form = document.querySelector('form');
+        const form = document.getElementById('registrationForm');
         if (form) {
             form.addEventListener('submit', function(e) {
+                e.preventDefault();
                 if (!validateCurrentSection()) {
-                    e.preventDefault();
                     return false;
                 }
+                
+                // Check if payment date is selected
+                const paymentDate = form.querySelector('input[name="payment_date"]');
+                if (!paymentDate || !paymentDate.value) {
+                    alert('Please select a payment date');
+                    return false;
+                }
+
+                // If validation passes, submit the form
+                form.submit();
             });
         }
     } catch (error) {
