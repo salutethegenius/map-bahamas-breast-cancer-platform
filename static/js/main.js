@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // First define all functions
-    function initializeDashboard() {
+    window.initializeDashboard = function() {
         try {
             const searchInput = document.getElementById('searchInput');
             const packageFilter = document.getElementById('packageFilter');
