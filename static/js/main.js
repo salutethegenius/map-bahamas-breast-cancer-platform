@@ -8,6 +8,22 @@ document.addEventListener('DOMContentLoaded', function() {
     if (registrationForm) {
         let currentSection = 0;
 
+        function validateCurrentSection() {
+            const currentFields = sections[currentSection].querySelectorAll('input, select, textarea');
+            let isValid = true;
+            
+            currentFields.forEach(field => {
+                if (field.hasAttribute('required') && !field.value) {
+                    isValid = false;
+                    field.classList.add('is-invalid');
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+            
+            return isValid;
+        }
+
         function updateProgress() {
             if (progressBar) {
                 const progress = ((currentSection + 1) / sections.length) * 100;
@@ -40,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (nextBtn) {
             nextBtn.addEventListener('click', () => {
                 try {
-                    if (currentSection < sections.length - 1) {
+                    if (validateCurrentSection() && currentSection < sections.length - 1) {
                         currentSection++;
                         showSection(currentSection);
                     }
@@ -63,6 +79,25 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
+        // Form submission handler
+        registrationForm.addEventListener('submit', function(e) {
+            try {
+                if (!validateCurrentSection()) {
+                    e.preventDefault();
+                    return false;
+                }
+                
+                const submitBtn = document.getElementById('submit');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = 'Submitting...';
+                }
+            } catch (error) {
+                console.error('Error handling form submission:', error);
+                e.preventDefault();
+            }
+        });
+
         // Photo preview
         const photoInput = document.querySelector('input[type="file"]');
         const previewDiv = document.getElementById('photoPreview');
@@ -72,6 +107,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 try {
                     const file = e.target.files[0];
                     if (file) {
+                        if (file.size > 16 * 1024 * 1024) { // 16MB limit
+                            alert('File size exceeds 16MB limit');
+                            e.target.value = '';
+                            previewDiv.innerHTML = '';
+                            return;
+                        }
+                        
                         const reader = new FileReader();
                         reader.onload = (e) => {
                             previewDiv.innerHTML = `
@@ -84,9 +126,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             previewDiv.innerHTML = '<p class="text-danger">Error loading preview</p>';
                         };
                         reader.readAsDataURL(file);
+                    } else {
+                        previewDiv.innerHTML = '';
                     }
                 } catch (error) {
                     console.error('Error handling file upload:', error);
+                    previewDiv.innerHTML = '<p class="text-danger">Error handling file</p>';
                 }
             });
         }
@@ -97,9 +142,13 @@ document.addEventListener('DOMContentLoaded', function() {
             packageSelect.addEventListener('change', function() {
                 try {
                     const isBlackFriday = this.value === 'black_friday';
-                    const priceDisplay = document.querySelector('.package-price');
-                    if (priceDisplay) {
-                        priceDisplay.innerHTML = isBlackFriday ? '50% OFF!' : '';
+                    const calendarSection = document.getElementById('calendar-section');
+                    if (calendarSection) {
+                        const today = new Date();
+                        const paymentDate = calendarSection.querySelector('input[type="date"]');
+                        if (paymentDate) {
+                            paymentDate.min = today.toISOString().split('T')[0];
+                        }
                     }
                 } catch (error) {
                     console.error('Error handling package selection:', error);

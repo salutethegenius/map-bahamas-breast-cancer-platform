@@ -41,39 +41,53 @@ def index():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    # Create uploads directory if it doesn't exist
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    
     form = CompanyRegistrationForm()
     
     if form.validate_on_submit():
-        # Handle file upload
-        photo_filename = None
-        if form.contact_photo.data:
-            file = form.contact_photo.data
-            photo_filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], photo_filename))
-        
-        # Create company record
-        company = Company(
-            name=form.company_name.data,
-            address=form.company_address.data,
-            email=form.company_email.data,
-            phone=form.company_phone.data,
-            contact_name=form.contact_name.data,
-            contact_email=form.contact_email.data,
-            contact_phone=form.contact_phone.data,
-            contact_photo=photo_filename,
-            package_tier=form.package_tier.data,
-            is_black_friday=form.package_tier.data == 'black_friday',
-            tickets_allocated=5 if form.package_tier.data == 'black_friday' else 0
-        )
-        
-        db.session.add(company)
-        db.session.commit()
-        
-        # Send welcome email
-        send_welcome_email(company)
-        
-        flash('Registration successful!', 'success')
-        return redirect(url_for('confirmation'))
+        try:
+            # Handle file upload
+            photo_filename = None
+            if form.contact_photo.data:
+                file = form.contact_photo.data
+                if file.filename:
+                    photo_filename = secure_filename(file.filename)
+                    try:
+                        file.save(os.path.join(app.config['UPLOAD_FOLDER'], photo_filename))
+                    except Exception as e:
+                        flash(f'Error uploading file: {str(e)}', 'error')
+                        return render_template('register.html', form=form)
+
+            # Create company record
+            company = Company(
+                name=form.company_name.data,
+                address=form.company_address.data,
+                email=form.company_email.data,
+                phone=form.company_phone.data,
+                contact_name=form.contact_name.data,
+                contact_email=form.contact_email.data,
+                contact_phone=form.contact_phone.data,
+                contact_photo=photo_filename,
+                package_tier=form.package_tier.data,
+                is_black_friday=form.package_tier.data == 'black_friday',
+                tickets_allocated=5 if form.package_tier.data == 'black_friday' else 0
+            )
+            
+            db.session.add(company)
+            db.session.commit()
+            
+            # Send welcome email
+            send_welcome_email(company)
+            
+            flash('Registration successful!', 'success')
+            return redirect(url_for('confirmation'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'An error occurred: {str(e)}', 'error')
+            return render_template('register.html', form=form)
     
     return render_template('register.html', form=form)
 
