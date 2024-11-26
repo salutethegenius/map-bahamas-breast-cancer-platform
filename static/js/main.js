@@ -249,20 +249,20 @@ document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('registrationForm');
         if (form) {
             form.addEventListener('submit', function(e) {
-                e.preventDefault();
                 if (!validateCurrentSection()) {
+                    e.preventDefault();
                     return false;
                 }
                 
                 // Check if payment date is selected
                 const paymentDate = form.querySelector('input[name="payment_date"]');
                 if (!paymentDate || !paymentDate.value) {
+                    e.preventDefault();
                     alert('Please select a payment date');
                     return false;
                 }
-
-                // If validation passes, submit the form
-                form.submit();
+                
+                // Form will submit normally when validation passes
             });
         }
     } catch (error) {
