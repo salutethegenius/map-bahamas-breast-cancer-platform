@@ -54,8 +54,9 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user)
+            flash('Successfully logged in!', 'success')
             return redirect(url_for('dashboard'))
-        flash('Invalid email or password', 'error')
+        flash('Invalid email or password. Please try admin@mapbahamas.com', 'error')
     return render_template('auth/login.html', form=form)
 
 @app.route('/logout')
@@ -199,9 +200,14 @@ def load_test_data():
 
 with app.app_context():
     db.create_all()
-    # Create admin user if it doesn't exist
-    if not User.query.filter_by(email='admin@mapbahamas.com').first():
+    # Recreate admin user
+    admin_user = User.query.filter_by(email='admin@mapbahamas.com').first()
+    if not admin_user:
         admin = User(email='admin@mapbahamas.com', is_admin=True)
-        admin.set_password('adminpass123')  # This is a temporary password
+        admin.set_password('adminpass123')
         db.session.add(admin)
+        db.session.commit()
+    else:
+        # Update existing admin password
+        admin_user.set_password('adminpass123')
         db.session.commit()
