@@ -94,26 +94,16 @@ body {
 }
 
 .package-features {
-    list-style: none;
-    padding: 20px;
+    list-style: disc;
+    padding-left: 20px;
     margin: 0;
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 
 .package-features li {
     margin-bottom: 12px;
-    padding-left: 30px;  /* Increase padding to prevent overlap */
-    position: relative;
-    display: flex;      /* Add flex display */
-    align-items: flex-start;  /* Align items at start */
-    line-height: 1.4;   /* Adjust line height */
-}
-
-.package-features i {
-    position: absolute;
-    left: 0;
-    top: 4px;
-    width: 20px;       /* Set fixed width for icons */
-    text-align: center; /* Center the icon */
+    line-height: 1.4;
 }
 
 .package-card.premium {
