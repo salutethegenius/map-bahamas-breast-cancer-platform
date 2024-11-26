@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
         function updateProgress() {
             if (progressBar) {
                 const progress = ((currentSection + 1) / sections.length) * 100;
-                progressBar.style.width = progress + '%';
+                progressBar.style.width = `${progress}%`;
             }
         }
 
@@ -33,24 +33,32 @@ document.addEventListener('DOMContentLoaded', function() {
             updateProgress();
         }
 
-        // Next button handler
+        // Initialize navigation buttons
         const nextBtn = document.getElementById('next');
+        const prevBtn = document.getElementById('prev');
+
         if (nextBtn) {
-            nextBtn.addEventListener('click', function() {
-                if (currentSection < sections.length - 1) {
-                    currentSection++;
-                    showSection(currentSection);
+            nextBtn.addEventListener('click', () => {
+                try {
+                    if (currentSection < sections.length - 1) {
+                        currentSection++;
+                        showSection(currentSection);
+                    }
+                } catch (error) {
+                    console.error('Error navigating to next section:', error);
                 }
             });
         }
 
-        // Previous button handler
-        const prevBtn = document.getElementById('prev');
         if (prevBtn) {
-            prevBtn.addEventListener('click', function() {
-                if (currentSection > 0) {
-                    currentSection--;
-                    showSection(currentSection);
+            prevBtn.addEventListener('click', () => {
+                try {
+                    if (currentSection > 0) {
+                        currentSection--;
+                        showSection(currentSection);
+                    }
+                } catch (error) {
+                    console.error('Error navigating to previous section:', error);
                 }
             });
         }
@@ -60,17 +68,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const previewDiv = document.getElementById('photoPreview');
 
         if (photoInput && previewDiv) {
-            photoInput.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        previewDiv.innerHTML = `
-                            <img src="${e.target.result}" 
-                                 alt="Contact photo preview" 
-                                 style="max-width: 200px; max-height: 200px; border-radius: 4px;">`;
-                    };
-                    reader.readAsDataURL(file);
+            photoInput.addEventListener('change', (e) => {
+                try {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            previewDiv.innerHTML = `
+                                <img src="${e.target.result}" 
+                                     alt="Contact photo preview" 
+                                     style="max-width: 200px; max-height: 200px; border-radius: 4px;">`;
+                        };
+                        reader.onerror = (error) => {
+                            console.error('Error reading file:', error);
+                            previewDiv.innerHTML = '<p class="text-danger">Error loading preview</p>';
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                } catch (error) {
+                    console.error('Error handling file upload:', error);
                 }
             });
         }
@@ -79,10 +95,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const packageSelect = document.querySelector('select[name="package_tier"]');
         if (packageSelect) {
             packageSelect.addEventListener('change', function() {
-                const isBlackFriday = this.value === 'black_friday';
-                const priceDisplay = document.querySelector('.package-price');
-                if (priceDisplay) {
-                    priceDisplay.innerHTML = isBlackFriday ? '50% OFF!' : '';
+                try {
+                    const isBlackFriday = this.value === 'black_friday';
+                    const priceDisplay = document.querySelector('.package-price');
+                    if (priceDisplay) {
+                        priceDisplay.innerHTML = isBlackFriday ? '50% OFF!' : '';
+                    }
+                } catch (error) {
+                    console.error('Error handling package selection:', error);
                 }
             });
         }
