@@ -34,26 +34,33 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
     // Next button handler
-    document.getElementById('next').addEventListener('click', function() {
-        if (currentSection < sections.length - 1) {
-            currentSection++;
-            showSection(currentSection);
-        }
-    });
+    const nextBtn = document.getElementById('next');
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function() {
+            if (currentSection < sections.length - 1) {
+                currentSection++;
+                showSection(currentSection);
+            }
+        });
+    }
 
     // Previous button handler
-    document.getElementById('prev').addEventListener('click', function() {
-        if (currentSection > 0) {
-            currentSection--;
-            showSection(currentSection);
-        }
-    });
+    const prevBtn = document.getElementById('prev');
+    if (prevBtn) {
+        prevBtn.addEventListener('click', function() {
+            if (currentSection > 0) {
+                currentSection--;
+                showSection(currentSection);
+            }
+        });
+    }
 
     // Photo preview
     const photoInput = document.querySelector('input[type="file"]');
     const previewDiv = document.getElementById('photoPreview');
 
-    photoInput.addEventListener('change', function(e) {
+    if (photoInput && previewDiv) {
+        photoInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
@@ -66,10 +73,12 @@ document.addEventListener('DOMContentLoaded', function() {
             reader.readAsDataURL(file);
         }
     });
+    }
 
     // Package selection handler
     const packageSelect = document.querySelector('select[name="package_tier"]');
-    packageSelect.addEventListener('change', function() {
+    if (packageSelect) {
+        packageSelect.addEventListener('change', function() {
         const isBlackFriday = this.value === 'black_friday';
         const priceDisplay = document.querySelector('.package-price');
         if (priceDisplay) {
