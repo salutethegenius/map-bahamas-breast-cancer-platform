@@ -325,3 +325,54 @@ body {
     padding-top: 2rem;
     border-top: 1px solid #dee2e6;
 }
+
+/* Package Row Layout */
+.packages-row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.packages-row .col-md-3 {
+    display: flex;
+    margin-bottom: 30px;
+}
+
+.package-card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.package-features {
+    flex-grow: 1;
+}
+
+.signup-button {
+    padding: 15px 40px;
+    font-size: 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.signup-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 991px) {
+    .packages-row .col-md-3 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+}
+
+@media (max-width: 767px) {
+    .packages-row .col-md-3 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    
+    .package-card {
+        margin-bottom: 20px;
+    }
+}
