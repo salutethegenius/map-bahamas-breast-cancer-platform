@@ -5,8 +5,9 @@
     <div class="container">
         <div class="row">
             <div class="col-md-8 offset-md-2 text-center text-white">
-                <h1>Join MAP Bahamas in Supporting Breast Cancer Awareness</h1>
-                <p class="lead">Make a difference in our community through corporate sponsorship</p>
+                <h1>Support the Journey to Accessible Breast Health</h1>
+                <p class="lead">Together, We Can Make a Difference</p>
+                <p class="hero-description">For 2025, MAP is committed to covering the first 38 miles of a monumental journey toward accessible breast health for all. Each mile represents 5,280 feet of progress, bringing us closer to a future where every woman has access to life-saving breast screening services.</p>
                 <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Become a Sponsor</a>
             </div>
         </div>
@@ -15,36 +16,106 @@
 
 <section class="packages py-5">
     <div class="container">
-        <h2 class="text-center mb-5">Sponsorship Packages</h2>
+        <h2 class="text-center mb-4">Explore Sponsorship Opportunities</h2>
+        <p class="text-center lead mb-5">Your support helps us accelerate this mission, and we're offering unique sponsorship packages tailored to make a lasting impact:</p>
+        
         <div class="row">
-            <div class="col-md-6">
-                <div class="package-card">
-                    <h3>1/4 Mile, 1/2 Mile, 1 Mile Package</h3>
+            <div class="col-md-4">
+                <div class="package-card premium">
+                    <div class="package-header">
+                        <h3>1 Mile Sponsor</h3>
+                        <div class="price">$5,280</div>
+                    </div>
                     <div class="package-image">
                         <img src="{{ url_for('static', filename='images/sponsor.jpeg') }}" alt="1 Mile Package">
                     </div>
                     <ul class="package-features">
-                        <li>Premium branding placement</li>
-                        <li>VIP event access</li>
-                        <li>Media coverage</li>
+                        <li><i class="fas fa-check-circle"></i> Mile Marker dedicated to your company</li>
+                        <li><i class="fas fa-check-circle"></i> 60-second video feature across social media</li>
+                        <li><i class="fas fa-check-circle"></i> Recognition on website and newsletter</li>
+                        <li><i class="fas fa-check-circle"></i> Feature story in Journey Newsletter</li>
+                        <li><i class="fas fa-check-circle"></i> 5 World Cancer Day Event tickets</li>
+                        <li><i class="fas fa-check-circle"></i> 8 October Event tickets</li>
                     </ul>
                 </div>
             </div>
-            <div class="col-md-6">
+            
+            <div class="col-md-4">
+                <div class="package-card">
+                    <div class="package-header">
+                        <h3>½ Mile Sponsor</h3>
+                        <div class="price">$2,640</div>
+                    </div>
+                    <div class="package-image">
+                        <img src="{{ url_for('static', filename='images/sponsor.jpeg') }}" alt="½ Mile Package">
+                    </div>
+                    <ul class="package-features">
+                        <li><i class="fas fa-check-circle"></i> Shared Mile Marker sponsorship</li>
+                        <li><i class="fas fa-check-circle"></i> Photo feature across social media</li>
+                        <li><i class="fas fa-check-circle"></i> Website and newsletter spotlight</li>
+                        <li><i class="fas fa-check-circle"></i> 4 October Event tickets</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
                 <div class="package-card special">
-                    <h3>Black Friday Special</h3>
+                    <div class="package-header">
+                        <h3>Black Friday Special</h3>
+                        <div class="price">50% OFF</div>
+                    </div>
                     <div class="package-image">
                         <img src="{{ url_for('static', filename='images/blackfriday.jpeg') }}" alt="Black Friday Special">
                     </div>
                     <ul class="package-features">
-                        <li>50% off regular packages</li>
-                        <li>5 event tickets</li>
-                        <li>Limited time offer</li>
+                        <li><i class="fas fa-star"></i> 1 Mile Package for just $2,640!</li>
+                        <li><i class="fas fa-star"></i> Contributions matched dollar-for-dollar</li>
+                        <li><i class="fas fa-star"></i> Two-minute video feature</li>
+                        <li><i class="fas fa-star"></i> All premium benefits included</li>
+                        <li><i class="fas fa-clock"></i> Limited time offer - First 10 sponsors only!</li>
                     </ul>
-                    <p class="deadline mt-3">Offer ends January 6th</p>
+                    <p class="deadline">Offer expires January 5th, 2025</p>
                 </div>
             </div>
         </div>
+    </div>
+</section>
+
+<section class="why-sponsor py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-4">Why Sponsor?</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="reason-card">
+                    <i class="fas fa-heart fa-3x mb-3"></i>
+                    <h4>Empower Lives</h4>
+                    <p>Help us create a future where all women have access to vital screening services.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="reason-card">
+                    <i class="fas fa-chart-line fa-3x mb-3"></i>
+                    <h4>Elevate Your Brand</h4>
+                    <p>Gain visibility through social media, newsletters, and event features.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="reason-card">
+                    <i class="fas fa-hands-helping fa-3x mb-3"></i>
+                    <h4>Make a Difference</h4>
+                    <p>Join a movement that's saving lives and transforming communities.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section py-5">
+    <div class="container text-center">
+        <h2 class="mb-4">Limited Opportunities Available</h2>
+        <p class="lead mb-4">With only 10 sponsorship packages available, spots are filling fast. Be a part of this life-changing mission and showcase your commitment to improving breast health for all.</p>
+        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Sign Up Now</a>
+        <p class="mt-3">Or contact us directly for more details</p>
     </div>
 </section>
 {% endblock %}
