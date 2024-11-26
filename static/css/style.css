@@ -101,15 +101,19 @@ body {
 
 .package-features li {
     margin-bottom: 12px;
-    padding-left: 25px;
+    padding-left: 30px;  /* Increase padding to prevent overlap */
     position: relative;
+    display: flex;      /* Add flex display */
+    align-items: flex-start;  /* Align items at start */
+    line-height: 1.4;   /* Adjust line height */
 }
 
 .package-features i {
-    color: var(--primary-pink);
     position: absolute;
     left: 0;
     top: 4px;
+    width: 20px;       /* Set fixed width for icons */
+    text-align: center; /* Center the icon */
 }
 
 .package-card.premium {
