@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Sponsor Registrations Dashboard</h2>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Search companies...">
+                </div>
+                <div class="col-md-4">
+                    <select id="packageFilter" class="form-select">
+                        <option value="">All Packages</option>
+                        <option value="1mile">1 Mile Package</option>
+                        <option value="halfmile">½ Mile Package</option>
+                        <option value="quartermile">¼ Mile Package</option>
+                        <option value="black_friday">Black Friday Special</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-striped" id="registrationsTable">
+                    <thead>
+                        <tr>
+                            <th>Company Name</th>
+                            <th>Package Tier</th>
+                            <th>Contact Person</th>
+                            <th>Registration Date</th>
+                            <th>Payment Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reg in registrations %}
+                        <tr>
+                            <td>{{ reg.name }}</td>
+                            <td>{{ reg.package_tier }}</td>
+                            <td>
+                                {{ reg.contact_name }}<br>
+                                <small class="text-muted">{{ reg.contact_email }}</small>
+                            </td>
+                            <td>{{ reg.created_at.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ reg.payment_date.strftime('%Y-%m-%d') if reg.payment_date else 'Not set' }}</td>
+                            <td>
+                                {% if reg.payment_date and reg.payment_date > now %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% elif reg.payment_date and reg.payment_date <= now %}
+                                    <span class="badge bg-success">Paid</span>
+                                {% else %}
+                                    <span class="badge bg-danger">No Payment Date</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

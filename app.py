@@ -211,3 +211,10 @@ with app.app_context():
         # Update existing admin password
         admin_user.set_password('adminpass123')
         db.session.commit()
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    # Query all registrations
+    registrations = Company.query.order_by(Company.created_at.desc()).all()
+    return render_template('dashboard/index.html', registrations=registrations)

@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize dashboard functionality
+    initializeDashboard();
+    
     // Form navigation
     const sections = document.querySelectorAll('.form-section');
     const progressBar = document.querySelector('.progress-bar');
@@ -157,6 +160,44 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Initialize form
+
+function initializeDashboard() {
+    const searchInput = document.getElementById('searchInput');
+    const packageFilter = document.getElementById('packageFilter');
+    const table = document.getElementById('registrationsTable');
+
+    if (searchInput && packageFilter && table) {
+        try {
+            // Search functionality
+            searchInput.addEventListener('input', function() {
+                filterTable();
+            });
+
+            // Package filter functionality
+            packageFilter.addEventListener('change', function() {
+                filterTable();
+            });
+
+            function filterTable() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedPackage = packageFilter.value;
+                const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+                Array.from(rows).forEach(row => {
+                    const companyName = row.cells[0].textContent.toLowerCase();
+                    const packageTier = row.cells[1].textContent.toLowerCase();
+                    
+                    const matchesSearch = companyName.includes(searchTerm);
+                    const matchesPackage = !selectedPackage || packageTier.includes(selectedPackage);
+                    
+                    row.style.display = matchesSearch && matchesPackage ? '' : 'none';
+                });
+            }
+        } catch (error) {
+            console.error('Error initializing dashboard:', error);
+        }
+    }
+}
         showSection(0);
     }
 });
