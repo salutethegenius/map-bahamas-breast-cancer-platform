@@ -1,42 +1,23 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Global functions
-    window.viewDetails = function(id) {
+    // First define all functions
+    function initializeDashboard() {
         try {
-            fetch(`/registration/${id}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.text();
-                })
-                .then(html => {
-                    const modalContent = document.getElementById('modalContent');
-                    if (!modalContent) {
-                        throw new Error('Modal content element not found');
-                    }
-                    modalContent.innerHTML = html;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    const modalContent = document.getElementById('modalContent');
-                    if (modalContent) {
-                        modalContent.innerHTML = 'Error loading details';
-                    }
-                });
-        } catch (error) {
-            console.error('Error in viewDetails:', error);
-        }
-    };
+            const searchInput = document.getElementById('searchInput');
+            const packageFilter = document.getElementById('packageFilter');
+            const table = document.getElementById('registrationsTable');
 
-    window.exportToCSV = function() {
-        try {
-            window.location.href = "/export_registrations";
-        } catch (error) {
-            console.error('Error exporting to CSV:', error);
-        }
-    };
+            if (!searchInput || !packageFilter || !table) {
+                console.error('Dashboard elements not found');
+                return;
+            }
 
-    // Dashboard table filtering function
+            searchInput.addEventListener('input', filterTable);
+            packageFilter.addEventListener('change', filterTable);
+        } catch (error) {
+            console.error('Error initializing dashboard:', error);
+        }
+    }
+
     function filterTable() {
         try {
             const searchInput = document.getElementById('searchInput');
@@ -74,49 +55,41 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Dashboard initialization
-    function initializeDashboard() {
+    window.viewDetails = function(id) {
         try {
-            const searchInput = document.getElementById('searchInput');
-            const packageFilter = document.getElementById('packageFilter');
-            const table = document.getElementById('registrationsTable');
-
-            if (!searchInput || !packageFilter || !table) {
-                console.error('Dashboard elements not found');
-                return;
-            }
-
-            searchInput.addEventListener('input', filterTable);
-            packageFilter.addEventListener('change', filterTable);
+            fetch(`/registration/${id}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    const modalContent = document.getElementById('modalContent');
+                    if (!modalContent) {
+                        throw new Error('Modal content element not found');
+                    }
+                    modalContent.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    const modalContent = document.getElementById('modalContent');
+                    if (modalContent) {
+                        modalContent.innerHTML = 'Error loading details';
+                    }
+                });
         } catch (error) {
-            console.error('Error initializing dashboard:', error);
+            console.error('Error in viewDetails:', error);
         }
-    }
+    };
 
-    // Form initialization and validation functions
-    function validateCurrentSection() {
+    window.exportToCSV = function() {
         try {
-            const currentForm = document.querySelector('.form-section.active');
-            if (!currentForm) return true;
-
-            const fields = currentForm.querySelectorAll('input[required], select[required], textarea[required]');
-            let isValid = true;
-
-            fields.forEach(field => {
-                if (!field.value.trim()) {
-                    field.classList.add('is-invalid');
-                    isValid = false;
-                } else {
-                    field.classList.remove('is-invalid');
-                }
-            });
-
-            return isValid;
+            window.location.href = "/export_registrations";
         } catch (error) {
-            console.error('Error validating form section:', error);
-            return false;
+            console.error('Error exporting to CSV:', error);
         }
-    }
+    };
 
     function initializeForm() {
         try {
@@ -173,12 +146,35 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Initialize form if on registration page
+    function validateCurrentSection() {
+        try {
+            const currentForm = document.querySelector('.form-section.active');
+            if (!currentForm) return true;
+
+            const fields = currentForm.querySelectorAll('input[required], select[required], textarea[required]');
+            let isValid = true;
+
+            fields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+
+            return isValid;
+        } catch (error) {
+            console.error('Error validating form section:', error);
+            return false;
+        }
+    }
+
+    // Initialize based on page
     if (document.querySelector('.form-section')) {
         initializeForm();
     }
 
-    // Initialize dashboard if on dashboard page
     if (document.getElementById('registrationsTable')) {
         initializeDashboard();
     }
