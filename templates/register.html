@@ -10,7 +10,7 @@
                     <div class="progress-bar" role="progressbar" style="width: 0%"></div>
                 </div>
                 
-                <form method="POST" enctype="multipart/form-data" id="registrationForm">
+                <form method="POST" action="{{ url_for('register') }}" enctype="multipart/form-data" id="registrationForm">
                     {{ form.csrf_token }}
                     
                     <div class="form-section active" id="company-details">

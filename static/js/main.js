@@ -262,7 +262,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     return false;
                 }
                 
-                // Form will submit normally when validation passes
+                // If all validation passes, let the form submit naturally
+                return true;
             });
         }
     } catch (error) {
