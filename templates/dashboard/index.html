@@ -113,23 +113,4 @@
 
 {% endblock %}
 
-{% block extra_scripts %}
-<script src="https://kit.fontawesome.com/a076d05399.js"></script>
-<script>
-function exportToCSV() {
-    window.location.href = "{{ url_for('export_registrations') }}";
-}
-
-function viewDetails(id) {
-    fetch(`/registration/${id}`)
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('modalContent').innerHTML = html;
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            document.getElementById('modalContent').innerHTML = 'Error loading details';
-        });
-}
-</script>
 {% endblock %}

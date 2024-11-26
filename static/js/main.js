@@ -1,5 +1,22 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // First define the function
+    // Global functions
+    window.viewDetails = function(id) {
+        fetch(`/registration/${id}`)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('modalContent').innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('modalContent').innerHTML = 'Error loading details';
+            });
+    };
+
+    window.exportToCSV = function() {
+        window.location.href = "/export_registrations";
+    };
+
+    // Dashboard initialization
     const initializeDashboard = function() {
         const searchInput = document.getElementById('searchInput');
         const packageFilter = document.getElementById('packageFilter');
@@ -135,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Initialize based on current page
+    // Initialize form if on registration page
     if (document.querySelector('.form-section')) {
         initializeForm();
     }
