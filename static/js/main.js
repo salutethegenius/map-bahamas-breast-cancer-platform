@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 form.addEventListener('submit', function(e) {
                     if (!validateCurrentSection()) {
                         e.preventDefault();
-                        return false;
+                        return;
                     }
                     
                     // Check if payment date is selected
@@ -160,11 +160,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (!paymentDate || !paymentDate.value) {
                         e.preventDefault();
                         alert('Please select a payment date');
-                        return false;
+                        return;
                     }
-                    
-                    // Submit form naturally
-                    return true;
                 });
             }
         } catch (error) {

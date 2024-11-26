@@ -168,7 +168,12 @@ def register():
 
 @app.route('/confirmation')
 def confirmation():
-    return render_template('confirmation.html')
+    company_id = request.args.get('id')
+    if company_id:
+        company = Company.query.get_or_404(company_id)
+        return render_template('confirmation.html', company=company)
+    flash('Registration not found', 'error')
+    return redirect(url_for('index'))
 
 def send_welcome_email(company):
     msg = Message(
