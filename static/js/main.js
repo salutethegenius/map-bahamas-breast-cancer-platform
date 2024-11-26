@@ -1,13 +1,18 @@
+// Global function declarations
+let initializeDashboard;
+let viewDetails;
+let exportToCSV;
+
 document.addEventListener('DOMContentLoaded', function() {
-    // First define all functions
-    function initializeDashboard() {
+    // Dashboard initialization function
+    initializeDashboard = function() {
         try {
             const searchInput = document.getElementById('searchInput');
             const packageFilter = document.getElementById('packageFilter');
             const table = document.getElementById('registrationsTable');
 
             if (!searchInput || !packageFilter || !table) {
-                console.error('Dashboard elements not found');
+                console.log('Dashboard elements not found - probably not on dashboard page');
                 return;
             }
 
@@ -16,8 +21,9 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Error initializing dashboard:', error);
         }
-    }
+    };
 
+    // Table filtering function
     function filterTable() {
         try {
             const searchInput = document.getElementById('searchInput');
@@ -55,7 +61,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function viewDetails(id) {
+    // View registration details function
+    viewDetails = function(id) {
         try {
             fetch(`/registration/${id}`)
                 .then(response => {
@@ -83,7 +90,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    function exportToCSV() {
+    // Export to CSV function
+    exportToCSV = function() {
         try {
             window.location.href = "/export_registrations";
         } catch (error) {
@@ -91,6 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
+    // Form initialization and validation
     function initializeForm() {
         try {
             const sections = document.querySelectorAll('.form-section');
@@ -161,6 +170,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     field.classList.remove('is-invalid');
                 }
+
+                // Additional validation for email fields
+                if (field.type === 'email' && field.value.trim()) {
+                    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailPattern.test(field.value.trim())) {
+                        field.classList.add('is-invalid');
+                        isValid = false;
+                    }
+                }
+
+                // Additional validation for phone fields
+                if (field.name.includes('phone') && field.value.trim()) {
+                    const phonePattern = /^\+?[\d\s-]{7,}$/;
+                    if (!phonePattern.test(field.value.trim())) {
+                        field.classList.add('is-invalid');
+                        isValid = false;
+                    }
+                }
             });
 
             return isValid;
@@ -168,15 +195,6 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error validating form section:', error);
             return false;
         }
-    }
-
-    // Initialize based on page
-    if (document.querySelector('.form-section')) {
-        initializeForm();
-    }
-
-    if (document.getElementById('registrationsTable')) {
-        initializeDashboard();
     }
 
     // Photo preview functionality
@@ -217,6 +235,15 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('Error setting up photo preview:', error);
     }
 
+    // Initialize based on page
+    if (document.querySelector('.form-section')) {
+        initializeForm();
+    }
+
+    if (document.getElementById('registrationsTable')) {
+        initializeDashboard();
+    }
+
     // Handle form submission
     try {
         const form = document.querySelector('form');
@@ -232,7 +259,8 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('Error setting up form submission:', error);
     }
 });
-    // Make functions globally available
-    window.initializeDashboard = initializeDashboard;
-    window.viewDetails = viewDetails;
-    window.exportToCSV = exportToCSV;
+
+// Make functions globally available
+window.initializeDashboard = initializeDashboard;
+window.viewDetails = viewDetails;
+window.exportToCSV = exportToCSV;

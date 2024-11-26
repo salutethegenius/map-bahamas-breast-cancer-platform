@@ -85,17 +85,44 @@ def register():
     
     if form.validate_on_submit():
         try:
+            # Check if company email already exists
+            existing_company = Company.query.filter_by(email=form.company_email.data).first()
+            if existing_company:
+                flash('A company with this email already exists.', 'error')
+                return render_template('register.html', form=form)
+
             # Handle file upload
             photo_filename = None
             if form.contact_photo.data:
                 file = form.contact_photo.data
                 if file.filename:
+                    # Validate file type
+                    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
+                    if '.' not in file.filename or \
+                       file.filename.rsplit('.', 1)[1].lower() not in allowed_extensions:
+                        flash('Invalid file type. Please upload an image file.', 'error')
+                        return render_template('register.html', form=form)
+                    
                     photo_filename = secure_filename(file.filename)
+                    file_path = os.path.join(app.config['UPLOAD_FOLDER'], photo_filename)
+                    
                     try:
-                        file.save(os.path.join(app.config['UPLOAD_FOLDER'], photo_filename))
+                        file.save(file_path)
                     except Exception as e:
                         flash(f'Error uploading file: {str(e)}', 'error')
                         return render_template('register.html', form=form)
+
+            # Get payment date from form
+            payment_date = request.form.get('payment_date')
+            if not payment_date:
+                flash('Please select a payment date.', 'error')
+                return render_template('register.html', form=form)
+
+            try:
+                payment_date = datetime.strptime(payment_date, '%Y-%m-%d')
+            except ValueError:
+                flash('Invalid payment date format.', 'error')
+                return render_template('register.html', form=form)
 
             # Create company record
             company = Company(
@@ -106,25 +133,36 @@ def register():
                 contact_name=form.contact_name.data,
                 contact_email=form.contact_email.data,
                 contact_phone=form.contact_phone.data,
-                contact_photo=photo_filename,
+                contact_photo=os.path.join('uploads', photo_filename) if photo_filename else None,
                 package_tier=form.package_tier.data,
                 is_black_friday=form.package_tier.data == 'black_friday',
-                tickets_allocated=5 if form.package_tier.data == 'black_friday' else 0
+                tickets_allocated=5 if form.package_tier.data == 'black_friday' else 0,
+                payment_date=payment_date
             )
             
             db.session.add(company)
             db.session.commit()
             
             # Send welcome email
-            send_welcome_email(company)
+            try:
+                send_welcome_email(company)
+            except Exception as e:
+                # Log the error but don't stop the registration process
+                print(f"Error sending welcome email: {str(e)}")
             
-            flash('Registration successful!', 'success')
-            return redirect(url_for('confirmation'))
+            flash('Registration successful! Please check your email for further instructions.', 'success')
+            return redirect(url_for('confirmation', id=company.id))
             
         except Exception as e:
             db.session.rollback()
-            flash(f'An error occurred: {str(e)}', 'error')
+            flash(f'An error occurred during registration. Please try again.', 'error')
+            print(f"Registration error: {str(e)}")  # Log the actual error
             return render_template('register.html', form=form)
+    
+    if form.errors:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f'{field}: {error}', 'error')
     
     return render_template('register.html', form=form)
 
