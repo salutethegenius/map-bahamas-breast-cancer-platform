@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // First define all functions
-    window.initializeDashboard = function() {
+    function initializeDashboard() {
         try {
             const searchInput = document.getElementById('searchInput');
             const packageFilter = document.getElementById('packageFilter');
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    window.viewDetails = function(id) {
+    function viewDetails(id) {
         try {
             fetch(`/registration/${id}`)
                 .then(response => {
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    window.exportToCSV = function() {
+    function exportToCSV() {
         try {
             window.location.href = "/export_registrations";
         } catch (error) {
@@ -232,3 +232,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('Error setting up form submission:', error);
     }
 });
+    // Make functions globally available
+    window.initializeDashboard = initializeDashboard;
+    window.viewDetails = viewDetails;
+    window.exportToCSV = exportToCSV;
