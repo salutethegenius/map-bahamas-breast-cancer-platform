@@ -2,7 +2,7 @@ import io
 import csv
 import os
 from datetime import datetime
-from flask import Flask, render_template, request, flash, redirect, url_for
+from flask import Flask, render_template, request, flash, redirect, url_for, Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail, Message
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -234,34 +234,38 @@ def registration_details(id):
 @app.route('/export_registrations')
 @login_required
 def export_registrations():
-    registrations = Company.query.order_by(Company.created_at.desc()).all()
-    output = io.StringIO()
-    writer = csv.writer(output)
-    
-    # Write headers with all fields
-    writer.writerow([
-        'Company Name', 'Company Address', 'Company Email', 'Company Phone',
-        'Package Tier', 'Black Friday Special', 'Event Tickets',
-        'Contact Name', 'Contact Email', 'Contact Phone',
-        'Registration Date', 'Payment Date', 'Status'
-    ])
-    
-    # Write data
-    for reg in registrations:
-        status = 'Paid' if reg.payment_date and reg.payment_date <= datetime.utcnow() else 'Pending'
+    try:
+        registrations = Company.query.order_by(Company.created_at.desc()).all()
+        output = io.StringIO()
+        writer = csv.writer(output)
+        
+        # Write headers with all fields
         writer.writerow([
-            reg.name, reg.address, reg.email, reg.phone,
-            reg.package_tier, 'Yes' if reg.is_black_friday else 'No',
-            '5' if reg.is_black_friday else '0',
-            reg.contact_name, reg.contact_email, reg.contact_phone,
-            reg.created_at.strftime('%Y-%m-%d'),
-            reg.payment_date.strftime('%Y-%m-%d') if reg.payment_date else 'Not set',
-            status
+            'Company Name', 'Company Address', 'Company Email', 'Company Phone',
+            'Package Tier', 'Black Friday Special', 'Event Tickets',
+            'Contact Name', 'Contact Email', 'Contact Phone',
+            'Registration Date', 'Payment Date', 'Status'
         ])
-    
-    output.seek(0)
-    return Response(
-        output.getvalue(),
-        mimetype='text/csv',
-        headers={'Content-Disposition': 'attachment; filename=registrations.csv'}
-    )
+        
+        # Write data
+        for reg in registrations:
+            status = 'Paid' if reg.payment_date and reg.payment_date <= datetime.utcnow() else 'Pending'
+            writer.writerow([
+                reg.name, reg.address, reg.email, reg.phone,
+                reg.package_tier, 'Yes' if reg.is_black_friday else 'No',
+                '5' if reg.is_black_friday else '0',
+                reg.contact_name, reg.contact_email, reg.contact_phone,
+                reg.created_at.strftime('%Y-%m-%d'),
+                reg.payment_date.strftime('%Y-%m-%d') if reg.payment_date else 'Not set',
+                status
+            ])
+        
+        output.seek(0)
+        return Response(
+            output.getvalue(),
+            mimetype='text/csv',
+            headers={'Content-Disposition': 'attachment; filename=registrations.csv'}
+        )
+    except Exception as e:
+        flash(f'Error exporting data: {str(e)}', 'error')
+        return redirect(url_for('dashboard'))
