@@ -129,3 +129,39 @@ body {
         margin-bottom: 20px;
     }
 }
+/* Sponsor Profile Page */
+.sponsor-profile .profile-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+.sponsor-profile .profile-photo {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--primary-pink);
+}
+
+.sponsor-profile h4 {
+    color: var(--primary-pink);
+    margin-bottom: 1rem;
+}
+
+.sponsor-profile ul li {
+    margin-bottom: 0.5rem;
+}
+
+.sponsor-profile .badge {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    margin-right: 0.5rem;
+}
+
+.sponsor-profile .sponsorship-details {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #dee2e6;
+}

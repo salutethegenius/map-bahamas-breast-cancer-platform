@@ -231,6 +231,12 @@ def registration_details(id):
                          registration=registration,
                          now=datetime.utcnow())
 
+
+@app.route('/sponsor/<int:id>')
+def sponsor_profile(id):
+    sponsor = Company.query.get_or_404(id)
+    return render_template('sponsor_profile.html', sponsor=sponsor)
+
 @app.route('/export_registrations')
 @login_required
 def export_registrations():

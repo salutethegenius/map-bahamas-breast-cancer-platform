@@ -47,7 +47,7 @@
                     <tbody>
                         {% for reg in registrations %}
                         <tr>
-                            <td>{{ reg.name }}</td>
+                            <td><a href="{{ url_for('sponsor_profile', id=reg.id) }}">{{ reg.name }}</a></td>
                             <td>
                                 <span class="badge bg-primary">{{ reg.package_tier }}</span>
                                 {% if reg.is_black_friday %}
