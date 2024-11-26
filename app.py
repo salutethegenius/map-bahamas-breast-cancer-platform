@@ -217,4 +217,6 @@ with app.app_context():
 def dashboard():
     # Query all registrations
     registrations = Company.query.order_by(Company.created_at.desc()).all()
-    return render_template('dashboard/index.html', registrations=registrations)
+    return render_template('dashboard/index.html', 
+                         registrations=registrations,
+                         now=datetime.utcnow())

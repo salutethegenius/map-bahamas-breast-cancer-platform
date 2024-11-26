@@ -1,88 +1,89 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize dashboard functionality
-    initializeDashboard();
-    
+    function initializeDashboard() {
+        const searchInput = document.getElementById('searchInput');
+        const packageFilter = document.getElementById('packageFilter');
+        const table = document.getElementById('registrationsTable');
+
+        if (searchInput && packageFilter && table) {
+            try {
+                // Search functionality
+                searchInput.addEventListener('input', function() {
+                    filterTable();
+                });
+
+                // Package filter functionality
+                packageFilter.addEventListener('change', function() {
+                    filterTable();
+                });
+
+                function filterTable() {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    const selectedPackage = packageFilter.value;
+                    const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+                    Array.from(rows).forEach(row => {
+                        const companyName = row.cells[0].textContent.toLowerCase();
+                        const packageTier = row.cells[1].textContent.toLowerCase();
+                        
+                        const matchesSearch = companyName.includes(searchTerm);
+                        const matchesPackage = !selectedPackage || packageTier.includes(selectedPackage);
+                        
+                        row.style.display = matchesSearch && matchesPackage ? '' : 'none';
+                    });
+                }
+            } catch (error) {
+                console.error('Error initializing dashboard:', error);
+            }
+        }
+    }
+
     // Form navigation
     const sections = document.querySelectorAll('.form-section');
     const progressBar = document.querySelector('.progress-bar');
-    const registrationForm = document.getElementById('registrationForm');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+    const submitBtn = document.getElementById('submit');
+    let currentSection = 0;
+
+    function showSection(sectionIndex) {
+        sections.forEach((section, index) => {
+            section.classList.remove('active');
+            if (index === sectionIndex) section.classList.add('active');
+        });
+
+        // Update progress bar
+        const progress = ((sectionIndex + 1) / sections.length) * 100;
+        progressBar.style.width = progress + '%';
+
+        // Update buttons
+        prevBtn.style.display = sectionIndex === 0 ? 'none' : 'block';
+        nextBtn.style.display = sectionIndex === sections.length - 1 ? 'none' : 'block';
+        submitBtn.style.display = sectionIndex === sections.length - 1 ? 'block' : 'none';
+    }
+
+    if (prevBtn && nextBtn && submitBtn) {
+        prevBtn.addEventListener('click', () => {
+            if (currentSection > 0) {
+                currentSection--;
+                showSection(currentSection);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentSection < sections.length - 1) {
+                currentSection++;
+                showSection(currentSection);
+            }
+        });
+
+        // Initialize form and dashboard
+        showSection(0);
+        initializeDashboard();
+    }
     
-    // Only initialize form navigation if we're on the registration page
+    // Form submission handler (moved here for better structure)
+    const registrationForm = document.getElementById('registrationForm');
     if (registrationForm) {
-        let currentSection = 0;
-
-        function validateCurrentSection() {
-            const currentFields = sections[currentSection].querySelectorAll('input, select, textarea');
-            let isValid = true;
-            
-            currentFields.forEach(field => {
-                if (field.hasAttribute('required') && !field.value) {
-                    isValid = false;
-                    field.classList.add('is-invalid');
-                } else {
-                    field.classList.remove('is-invalid');
-                }
-            });
-            
-            return isValid;
-        }
-
-        function updateProgress() {
-            if (progressBar) {
-                const progress = ((currentSection + 1) / sections.length) * 100;
-                progressBar.style.width = `${progress}%`;
-            }
-        }
-
-        function showSection(index) {
-            sections.forEach(section => section.classList.remove('active'));
-            sections[index].classList.add('active');
-            
-            // Update navigation buttons
-            const prevBtn = document.getElementById('prev');
-            const nextBtn = document.getElementById('next');
-            const submitBtn = document.getElementById('submit');
-            
-            if (prevBtn && nextBtn && submitBtn) {
-                prevBtn.style.display = index === 0 ? 'none' : 'block';
-                nextBtn.style.display = index === sections.length - 1 ? 'none' : 'block';
-                submitBtn.style.display = index === sections.length - 1 ? 'block' : 'none';
-            }
-            
-            updateProgress();
-        }
-
-        // Initialize navigation buttons
-        const nextBtn = document.getElementById('next');
-        const prevBtn = document.getElementById('prev');
-
-        if (nextBtn) {
-            nextBtn.addEventListener('click', () => {
-                try {
-                    if (validateCurrentSection() && currentSection < sections.length - 1) {
-                        currentSection++;
-                        showSection(currentSection);
-                    }
-                } catch (error) {
-                    console.error('Error navigating to next section:', error);
-                }
-            });
-        }
-
-        if (prevBtn) {
-            prevBtn.addEventListener('click', () => {
-                try {
-                    if (currentSection > 0) {
-                        currentSection--;
-                        showSection(currentSection);
-                    }
-                } catch (error) {
-                    console.error('Error navigating to previous section:', error);
-                }
-            });
-        }
-
-        // Form submission handler
         registrationForm.addEventListener('submit', function(e) {
             try {
                 if (!validateCurrentSection()) {
@@ -100,8 +101,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.preventDefault();
             }
         });
+    }
 
-        // Photo preview
+    // Photo preview (moved here for better structure)
         const photoInput = document.querySelector('input[type="file"]');
         const previewDiv = document.getElementById('photoPreview');
 
@@ -139,65 +141,39 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        // Package selection handler
-        const packageSelect = document.querySelector('select[name="package_tier"]');
-        if (packageSelect) {
-            packageSelect.addEventListener('change', function() {
-                try {
-                    const isBlackFriday = this.value === 'black_friday';
-                    const calendarSection = document.getElementById('calendar-section');
-                    if (calendarSection) {
-                        const today = new Date();
-                        const paymentDate = calendarSection.querySelector('input[type="date"]');
-                        if (paymentDate) {
-                            paymentDate.min = today.toISOString().split('T')[0];
-                        }
+    // Package selection handler (moved here for better structure)
+    const packageSelect = document.querySelector('select[name="package_tier"]');
+    if (packageSelect) {
+        packageSelect.addEventListener('change', function() {
+            try {
+                const isBlackFriday = this.value === 'black_friday';
+                const calendarSection = document.getElementById('calendar-section');
+                if (calendarSection) {
+                    const today = new Date();
+                    const paymentDate = calendarSection.querySelector('input[type="date"]');
+                    if (paymentDate) {
+                        paymentDate.min = today.toISOString().split('T')[0];
                     }
-                } catch (error) {
-                    console.error('Error handling package selection:', error);
                 }
-            });
-        }
-
-        // Initialize form
-
-function initializeDashboard() {
-    const searchInput = document.getElementById('searchInput');
-    const packageFilter = document.getElementById('packageFilter');
-    const table = document.getElementById('registrationsTable');
-
-    if (searchInput && packageFilter && table) {
-        try {
-            // Search functionality
-            searchInput.addEventListener('input', function() {
-                filterTable();
-            });
-
-            // Package filter functionality
-            packageFilter.addEventListener('change', function() {
-                filterTable();
-            });
-
-            function filterTable() {
-                const searchTerm = searchInput.value.toLowerCase();
-                const selectedPackage = packageFilter.value;
-                const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
-
-                Array.from(rows).forEach(row => {
-                    const companyName = row.cells[0].textContent.toLowerCase();
-                    const packageTier = row.cells[1].textContent.toLowerCase();
-                    
-                    const matchesSearch = companyName.includes(searchTerm);
-                    const matchesPackage = !selectedPackage || packageTier.includes(selectedPackage);
-                    
-                    row.style.display = matchesSearch && matchesPackage ? '' : 'none';
-                });
+            } catch (error) {
+                console.error('Error handling package selection:', error);
             }
-        } catch (error) {
-            console.error('Error initializing dashboard:', error);
-        }
+        });
     }
-}
-        showSection(0);
+
+    function validateCurrentSection() {
+        const currentFields = sections[currentSection].querySelectorAll('input, select, textarea');
+        let isValid = true;
+        
+        currentFields.forEach(field => {
+            if (field.hasAttribute('required') && !field.value) {
+                isValid = false;
+                field.classList.add('is-invalid');
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        return isValid;
     }
 });
