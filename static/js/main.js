@@ -1,20 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Dashboard functionality
-    function initializeDashboard() {
+    // First define the function
+    const initializeDashboard = function() {
         const searchInput = document.getElementById('searchInput');
         const packageFilter = document.getElementById('packageFilter');
         const table = document.getElementById('registrationsTable');
 
         if (searchInput && packageFilter && table) {
-            // Search functionality
-            searchInput.addEventListener('input', function() {
-                filterTable();
-            });
-
-            // Package filter functionality
-            packageFilter.addEventListener('change', function() {
-                filterTable();
-            });
+            searchInput.addEventListener('input', filterTable);
+            packageFilter.addEventListener('change', filterTable);
 
             function filterTable() {
                 const searchTerm = searchInput.value.toLowerCase();
@@ -32,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         }
-    }
+    };
 
     // Form navigation
     function initializeForm() {
@@ -82,13 +75,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Initialize both dashboard and form based on current page
-    if (document.getElementById('registrationsTable')) {
-        initializeDashboard();
-    }
+    // Form validation
+    function validateCurrentSection() {
+        const currentForm = document.querySelector('.form-section.active');
+        if (!currentForm) return true;
 
-    if (document.querySelector('.form-section')) {
-        initializeForm();
+        const fields = currentForm.querySelectorAll('input[required], select[required], textarea[required]');
+        let isValid = true;
+
+        fields.forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+
+        return isValid;
     }
 
     // Photo preview functionality
@@ -120,26 +124,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Form validation
-    function validateCurrentSection() {
-        const currentForm = document.querySelector('.form-section.active');
-        if (!currentForm) return true;
-
-        const fields = currentForm.querySelectorAll('input[required], select[required], textarea[required]');
-        let isValid = true;
-
-        fields.forEach(field => {
-            if (!field.value.trim()) {
-                field.classList.add('is-invalid');
-                isValid = false;
-            } else {
-                field.classList.remove('is-invalid');
-            }
-        });
-
-        return isValid;
-    }
-
     // Handle form submission
     const form = document.querySelector('form');
     if (form) {
@@ -149,5 +133,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 return false;
             }
         });
+    }
+
+    // Initialize based on current page
+    if (document.querySelector('.form-section')) {
+        initializeForm();
+    }
+
+    // Initialize dashboard if on dashboard page
+    if (document.getElementById('registrationsTable')) {
+        initializeDashboard();
     }
 });
