@@ -33,59 +33,61 @@ document.addEventListener('DOMContentLoaded', function() {
             updateProgress();
         }
 
-    // Next button handler
-    const nextBtn = document.getElementById('next');
-    if (nextBtn) {
-        nextBtn.addEventListener('click', function() {
-            if (currentSection < sections.length - 1) {
-                currentSection++;
-                showSection(currentSection);
-            }
-        });
-    }
-
-    // Previous button handler
-    const prevBtn = document.getElementById('prev');
-    if (prevBtn) {
-        prevBtn.addEventListener('click', function() {
-            if (currentSection > 0) {
-                currentSection--;
-                showSection(currentSection);
-            }
-        });
-    }
-
-    // Photo preview
-    const photoInput = document.querySelector('input[type="file"]');
-    const previewDiv = document.getElementById('photoPreview');
-
-    if (photoInput && previewDiv) {
-        photoInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                previewDiv.innerHTML = `
-                    <img src="${e.target.result}" 
-                         alt="Contact photo preview" 
-                         style="max-width: 200px; max-height: 200px; border-radius: 4px;">`;
-            };
-            reader.readAsDataURL(file);
+        // Next button handler
+        const nextBtn = document.getElementById('next');
+        if (nextBtn) {
+            nextBtn.addEventListener('click', function() {
+                if (currentSection < sections.length - 1) {
+                    currentSection++;
+                    showSection(currentSection);
+                }
+            });
         }
-    });
-    }
 
-    // Package selection handler
-    const packageSelect = document.querySelector('select[name="package_tier"]');
-    if (packageSelect) {
-        packageSelect.addEventListener('change', function() {
-        const isBlackFriday = this.value === 'black_friday';
-        const priceDisplay = document.querySelector('.package-price');
-        if (priceDisplay) {
-            priceDisplay.innerHTML = isBlackFriday ? '50% OFF!' : '';
+        // Previous button handler
+        const prevBtn = document.getElementById('prev');
+        if (prevBtn) {
+            prevBtn.addEventListener('click', function() {
+                if (currentSection > 0) {
+                    currentSection--;
+                    showSection(currentSection);
+                }
+            });
         }
-    });
 
-    // Initialize form
-    showSection(0);
+        // Photo preview
+        const photoInput = document.querySelector('input[type="file"]');
+        const previewDiv = document.getElementById('photoPreview');
+
+        if (photoInput && previewDiv) {
+            photoInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewDiv.innerHTML = `
+                            <img src="${e.target.result}" 
+                                 alt="Contact photo preview" 
+                                 style="max-width: 200px; max-height: 200px; border-radius: 4px;">`;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // Package selection handler
+        const packageSelect = document.querySelector('select[name="package_tier"]');
+        if (packageSelect) {
+            packageSelect.addEventListener('change', function() {
+                const isBlackFriday = this.value === 'black_friday';
+                const priceDisplay = document.querySelector('.package-price');
+                if (priceDisplay) {
+                    priceDisplay.innerHTML = isBlackFriday ? '50% OFF!' : '';
+                }
+            });
+        }
+
+        // Initialize form
+        showSection(0);
+    }
 });
