@@ -11,6 +11,7 @@ class Base(DeclarativeBase):
 
 db = SQLAlchemy(model_class=Base)
 app = Flask(__name__)
+app.debug = True  # Enable debug mode to test the feature
 
 # Configuration
 app.config['SECRET_KEY'] = os.environ.get("FLASK_SECRET_KEY") or "a secret key"
@@ -106,6 +107,62 @@ def send_welcome_email(company):
         company=company
     )
     mail.send(msg)
+
+@app.route('/load-test-data', methods=['POST'])
+def load_test_data():
+    if not app.debug:
+        flash('Test data can only be loaded in debug mode.', 'error')
+        return redirect(url_for('index'))
+    
+    try:
+        # Calculate payment dates for next month
+        from datetime import datetime, timedelta
+        today = datetime.now()
+        next_month = today.replace(day=1) + timedelta(days=32)
+        payment_date_1 = next_month.replace(day=15)
+        payment_date_2 = next_month.replace(day=20)
+        
+        with db.session.begin():
+            # 1 Mile Package sponsor
+            company1 = Company(
+                name='Tech Solutions Inc.',
+                address='123 Innovation Drive, Nassau',
+                email='contact@techsolutions.test',
+                phone='1-242-555-0101',
+                contact_name='John Smith',
+                contact_email='john@techsolutions.test',
+                contact_phone='1-242-555-0102',
+                contact_photo='sponsor.jpeg',
+                package_tier='1mile',
+                payment_date=payment_date_1,
+                is_black_friday=False,
+                tickets_allocated=0
+            )
+            
+            # Black Friday Special sponsor
+            company2 = Company(
+                name='Island Marketing Group',
+                address='456 Bay Street, Nassau',
+                email='info@islandmarketing.test',
+                phone='1-242-555-0201',
+                contact_name='Sarah Johnson',
+                contact_email='sarah@islandmarketing.test',
+                contact_phone='1-242-555-0202',
+                contact_photo='blackfriday.jpeg',
+                package_tier='black_friday',
+                payment_date=payment_date_2,
+                is_black_friday=True,
+                tickets_allocated=5
+            )
+            
+            db.session.add(company1)
+            db.session.add(company2)
+        
+        flash('Test data has been successfully loaded!', 'success')
+    except Exception as e:
+        flash(f'Error loading test data: {str(e)}', 'error')
+    
+    return redirect(url_for('index'))
 
 with app.app_context():
     db.create_all()

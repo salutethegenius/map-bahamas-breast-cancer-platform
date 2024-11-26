@@ -45,6 +45,13 @@
                 </div>
             </div>
         </div>
+        {% if config.get('DEBUG', False) %}
+        <div class="text-center mt-4">
+            <form action="{{ url_for('load_test_data') }}" method="POST">
+                <button type="submit" class="btn btn-secondary">Load Test Data</button>
+            </form>
+        </div>
+        {% endif %}
     </div>
 </section>
 {% endblock %}
