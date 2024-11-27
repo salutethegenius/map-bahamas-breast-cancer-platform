@@ -325,6 +325,35 @@ body {
     padding-top: 2rem;
     border-top: 1px solid #dee2e6;
 }
+.registration-progress {
+    margin: 15px 0;
+}
+
+.registration-progress .progress {
+    height: 10px;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+}
+
+.registration-progress small {
+    display: block;
+    text-align: center;
+    margin-top: 5px;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.spots-left {
+    color: #28a745;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.spots-full {
+    color: #dc3545;
+    font-weight: bold;
+    margin-top: 10px;
+}
 
 /* Package Row Layout */
 .packages-row {

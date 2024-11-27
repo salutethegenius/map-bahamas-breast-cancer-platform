@@ -7,6 +7,16 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
 
 class CompanyRegistrationForm(FlaskForm):
+    def __init__(self, *args, **kwargs):
+        super(CompanyRegistrationForm, self).__init__(*args, **kwargs)
+        _, remaining = Company.check_registration_availability('black_friday')
+        if remaining == 0:
+            self.package_tier.choices = [
+                ('1mile', '1 Mile Package'),
+                ('halfmile', '½ Mile Package'),
+                ('quartermile', '¼ Mile Package')
+            ]
+
     company_name = StringField('Company Name', validators=[DataRequired(), Length(min=2, max=200)])
     company_address = TextAreaField('Company Address', validators=[DataRequired()])
     company_email = StringField('Company Email', validators=[DataRequired(), Email()])

@@ -74,7 +74,17 @@ from forms import CompanyRegistrationForm
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    # Get Black Friday package availability
+    _, black_friday_remaining = Company.check_registration_availability('black_friday')
+    package_stats = {
+        'black_friday': Company.get_package_count('black_friday'),
+        'one_mile': Company.get_package_count('1mile'),
+        'half_mile': Company.get_package_count('halfmile'),
+        'quarter_mile': Company.get_package_count('quartermile')
+    }
+    return render_template('index.html', 
+                         black_friday_remaining=black_friday_remaining,
+                         package_stats=package_stats)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
