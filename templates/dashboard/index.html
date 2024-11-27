@@ -7,6 +7,9 @@
         <button class="btn btn-success" onclick="exportToCSV()">
             <i class="fas fa-download"></i> Export Data
         </button>
+        <button class="btn btn-danger ms-2" onclick="if(confirm('Are you sure you want to reset all registrations?')) window.location.href='{{ url_for('reset_registrations') }}'">
+            <i class="fas fa-trash"></i> Reset Registrations
+        </button>
     </div>
     
     <!-- Registration Progress -->

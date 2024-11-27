@@ -341,3 +341,16 @@ def export_registrations():
     except Exception as e:
         flash(f'Error exporting data: {str(e)}', 'error')
         return redirect(url_for('dashboard'))
+
+@app.route('/reset_registrations')
+@login_required
+def reset_registrations():
+    try:
+        # Delete all companies but keep admin user
+        Company.query.delete()
+        db.session.commit()
+        flash('All registrations have been reset successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error resetting registrations: {str(e)}', 'error')
+    return redirect(url_for('dashboard'))
