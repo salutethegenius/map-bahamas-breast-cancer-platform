@@ -404,4 +404,20 @@ body {
     .package-card {
         margin-bottom: 20px;
     }
+.overall-progress {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.overall-progress .progress {
+    height: 25px;
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.overall-progress .progress-bar {
+    font-size: 14px;
+    line-height: 25px;
+    font-weight: bold;
+}
 }

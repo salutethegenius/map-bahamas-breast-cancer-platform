@@ -8,6 +8,15 @@
                 <h1>Support the Journey to Accessible Breast Health</h1>
                 <p class="lead">Together, We Can Make a Difference</p>
                 <p class="hero-description">For 2025, MAP is committed to covering the first 38 miles of a monumental journey toward accessible breast health for all. Each mile represents 5,280 feet of progress, bringing us closer to a future where every woman has access to life-saving breast screening services.</p>
+                <div class="overall-progress mt-4 mb-4">
+                    <h4 class="text-white">Overall Registration Progress</h4>
+                    <div class="progress">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: {{ ((package_stats['one_mile'] + package_stats['half_mile'] + package_stats['quarter_mile'] + package_stats['black_friday']) / 38) * 100 }}%">
+                            {{ package_stats['one_mile'] + package_stats['half_mile'] + package_stats['quarter_mile'] + package_stats['black_friday'] }}/38 Miles Sponsored
+                        </div>
+                    </div>
+                </div>
                 <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Make A Pledge</a>
             </div>
         </div>
@@ -25,6 +34,14 @@
                     <div class="package-header">
                         <h3>1 Mile Sponsor</h3>
                         <div class="price">$5,280</div>
+                        <div class="registration-progress mt-2">
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: {{ (package_stats['one_mile'] / 10) * 100 }}%">
+                                </div>
+                            </div>
+                            <small class="text-muted">{{ 10 - package_stats['one_mile'] }} spots remaining</small>
+                        </div>
                     </div>
                     <div class="package-image">
                         <img src="{{ url_for('static', filename='images/one-mile.png') }}" alt="1 Mile Package">
@@ -87,11 +104,7 @@
                                      style="width: {{ ((10 - black_friday_remaining) / 10) * 100 }}%">
                                 </div>
                             </div>
-                            {% if black_friday_remaining > 0 %}
-                                <small class="text-success">{{ black_friday_remaining }} spots remaining!</small>
-                            {% else %}
-                                <small class="text-danger">Sold Out!</small>
-                            {% endif %}
+                            
                         </div>
                     </div>
                     <div class="package-image">
