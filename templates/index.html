@@ -40,7 +40,7 @@
                                      style="width: {{ (package_stats['one_mile'] / 10) * 100 }}%">
                                 </div>
                             </div>
-                            <small class="text-muted">{{ 10 - package_stats['one_mile'] }} spots remaining</small>
+                            <small class="text-muted">4 spots remaining</small>
                         </div>
                     </div>
                     <div class="package-image">
@@ -98,14 +98,7 @@
                     <div class="package-header">
                         <h3>Black Friday Special</h3>
                         <div class="price">50% OFF</div>
-                        <div class="registration-progress mt-2">
-                            <div class="progress">
-                                <div class="progress-bar bg-warning" role="progressbar" 
-                                     style="width: {{ ((10 - black_friday_remaining) / 10) * 100 }}%">
-                                </div>
-                            </div>
-                            
-                        </div>
+                        
                     </div>
                     <div class="package-image">
                         <img src="{{ url_for('static', filename='images/one-mile-black.png') }}" alt="Black Friday Special">
