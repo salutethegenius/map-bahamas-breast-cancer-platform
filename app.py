@@ -90,6 +90,15 @@ def register():
             if existing_company:
                 flash('A company with this email already exists.', 'error')
                 return render_template('register.html', form=form)
+            
+            # Check package availability
+            package_tier = form.package_tier.data
+            is_available, remaining_spots = Company.check_registration_availability(package_tier)
+            if not is_available:
+                flash('Sorry, this package is no longer available.', 'error')
+                return render_template('register.html', form=form)
+            elif package_tier == 'black_friday' and remaining_spots is not None:
+                flash(f'Black Friday Special: Only {remaining_spots} spots remaining!', 'info')
 
             # Handle file upload
             photo_filename = None
@@ -262,8 +271,22 @@ with app.app_context():
 def dashboard():
     # Query all registrations
     registrations = Company.query.order_by(Company.created_at.desc()).all()
+    
+    # Get package statistics
+    package_stats = {
+        'black_friday': Company.get_package_count('black_friday'),
+        'one_mile': Company.get_package_count('1mile'),
+        'half_mile': Company.get_package_count('halfmile'),
+        'quarter_mile': Company.get_package_count('quartermile')
+    }
+    
+    # Calculate Black Friday availability
+    black_friday_remaining = 10 - package_stats['black_friday']
+    
     return render_template('dashboard/index.html', 
                          registrations=registrations,
+                         package_stats=package_stats,
+                         black_friday_remaining=black_friday_remaining,
                          now=datetime.utcnow())
 
 @app.route('/registration/<int:id>')

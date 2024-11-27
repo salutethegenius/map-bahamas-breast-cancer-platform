@@ -34,3 +34,16 @@ class Company(db.Model):
     payment_date = db.Column(db.DateTime)
     tickets_allocated = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    @staticmethod
+    def get_package_count(package_tier):
+        """Get the count of registrations for a specific package tier"""
+        return Company.query.filter_by(package_tier=package_tier).count()
+    
+    @staticmethod
+    def check_registration_availability(package_tier):
+        """Check if registration is available for the selected package"""
+        if package_tier == 'black_friday':
+            current_count = Company.get_package_count('black_friday')
+            return current_count < 10, 10 - current_count
+        return True, None  # No limit for other packages

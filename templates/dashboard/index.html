@@ -9,6 +9,64 @@
         </button>
     </div>
     
+    <!-- Registration Progress -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Registration Progress</h5>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="progress-item">
+                        <h6>Black Friday Special</h6>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" role="progressbar" 
+                                 style="width: {{ (package_stats['black_friday'] / 10) * 100 }}%">
+                            </div>
+                        </div>
+                        <small>{{ package_stats['black_friday'] }}/10 spots taken</small>
+                        {% if black_friday_remaining > 0 %}
+                        <span class="badge bg-success">{{ black_friday_remaining }} spots left</span>
+                        {% else %}
+                        <span class="badge bg-danger">Full</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="progress-item">
+                        <h6>1 Mile Package</h6>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: 100%">
+                                 {{ package_stats['one_mile'] }} registrations
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="progress-item">
+                        <h6>½ Mile Package</h6>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: 100%">
+                                 {{ package_stats['half_mile'] }} registrations
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="progress-item">
+                        <h6>¼ Mile Package</h6>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: 100%">
+                                 {{ package_stats['quarter_mile'] }} registrations
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <div class="card mb-4">
         <div class="card-body">
             <div class="row mb-3">
