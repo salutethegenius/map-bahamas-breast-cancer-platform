@@ -13,6 +13,18 @@
     </div>
     
     <!-- Registration Progress -->
+    <!-- Overall Progress -->
+    <div class="col-md-12">
+        <div class="overall-progress mb-4">
+            <h5>Overall Progress</h5>
+            <div class="progress">
+                <div class="progress-bar bg-success" role="progressbar" 
+                     style="width: {{ (total_miles / 38) * 100 }}%">
+                    {{ "%.1f"|format(total_miles) }}/38 Miles Sponsored
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="card mb-4">
         <div class="card-body">
             <h5 class="card-title">Registration Progress</h5>

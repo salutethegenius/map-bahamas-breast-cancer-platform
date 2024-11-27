@@ -293,10 +293,17 @@ def dashboard():
     # Calculate Black Friday availability
     black_friday_remaining = 10 - package_stats['black_friday']
     
-    return render_template('dashboard/index.html', 
+    total_miles = (
+        package_stats['one_mile'] + 
+        package_stats['half_mile'] * 0.5 + 
+        package_stats['quarter_mile'] * 0.25 + 
+        package_stats['black_friday']
+    )
+    return render_template('dashboard/index.html',
                          registrations=registrations,
                          package_stats=package_stats,
                          black_friday_remaining=black_friday_remaining,
+                         total_miles=total_miles,
                          now=datetime.utcnow())
 
 @app.route('/registration/<int:id>')
