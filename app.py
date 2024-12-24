@@ -440,3 +440,15 @@ def reset_registrations():
         db.session.rollback()
         flash(f'Error resetting registrations: {str(e)}', 'error')
     return redirect(url_for('dashboard'))
+
+if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()
+        # Create admin user if not exists
+        admin_user = User.query.filter_by(email='admin@mapbahamas.com').first()
+        if not admin_user:
+            admin = User(email='admin@mapbahamas.com', is_admin=True)
+            admin.set_password('adminpass123')
+            db.session.add(admin)
+            db.session.commit()
+        app.run(host='0.0.0.0', port=5000)
