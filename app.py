@@ -10,6 +10,12 @@ from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from sqlalchemy.orm import DeclarativeBase
 import logging
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
+from sqlalchemy.exc import OperationalError, DatabaseError
+import time
+import backoff
+from sqlalchemy import create_engine
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -25,19 +31,24 @@ app.debug = True
 # Configuration
 app.config['SECRET_KEY'] = os.environ.get("FLASK_SECRET_KEY") or "a secret key"
 
-# Database configuration with SSL and connection pooling
+# Database configuration with connection pooling and retry logic
 db_url = os.environ.get("DATABASE_URL")
 if db_url:
-    # Configure SQLAlchemy with SSL and connection pooling
-    app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///site.db"
+    logger.info("Configuring database connection...")
+    # Configure SQLAlchemy with connection pooling
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
         "pool_pre_ping": True,
         "pool_recycle": 300,
+        "pool_size": 5,
+        "max_overflow": 10,
+        "pool_timeout": 30,
         "connect_args": {
-            "sslmode": "require",
-            "connect_timeout": 10
-        },
+            "connect_timeout": 60,
+            "application_name": "MAP Bahamas Web App"
+        }
     }
+    logger.info("Database configuration completed")
 else:
     logger.error("DATABASE_URL environment variable is not set")
     raise RuntimeError("Database configuration is missing")
@@ -72,29 +83,62 @@ db.init_app(app)
 from models import Company, User
 from forms import CompanyRegistrationForm, LoginForm
 
+def retry_on_connection_error(max_retries=5, delay=5):
+    """Decorator to retry database operations on connection errors with exponential backoff"""
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            retries = 0
+            while retries < max_retries:
+                try:
+                    return func(*args, **kwargs)
+                except OperationalError as e:
+                    if "endpoint is disabled" in str(e):
+                        logger.warning("Neon database endpoint is warming up...")
+                    if retries == max_retries - 1:
+                        logger.error(f"Failed to connect to database after {max_retries} attempts: {e}")
+                        raise
+                    retries += 1
+                    sleep_time = delay * (2 ** (retries - 1))  # Exponential backoff
+                    logger.warning(f"Database connection attempt {retries} failed, retrying in {sleep_time} seconds...")
+                    time.sleep(sleep_time)
+                except DatabaseError as e:
+                    logger.error(f"Database error: {e}")
+                    raise
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
 # Create tables within app context
 with app.app_context():
+    @retry_on_connection_error(max_retries=5, delay=5)
+    def initialize_database():
+        try:
+            logger.info("Attempting to create database tables...")
+            db.create_all()
+            logger.info("Database tables created successfully")
+
+            # Create admin user if not exists
+            admin_user = User.query.filter_by(email='admin@mapbahamas.com').first()
+            if not admin_user:
+                logger.info("Creating admin user...")
+                admin = User(email='admin@mapbahamas.com', is_admin=True)
+                admin.set_password('adminpass123')
+                db.session.add(admin)
+                db.session.commit()
+                logger.info("Admin user created successfully")
+            else:
+                logger.info("Admin user already exists")
+
+        except Exception as e:
+            logger.error(f"Error during database initialization: {str(e)}")
+            raise
+
     try:
-        logger.info("Creating database tables...")
-        db.create_all()
-
-        # Create admin user if not exists
-        admin_user = User.query.filter_by(email='admin@mapbahamas.com').first()
-        if not admin_user:
-            logger.info("Creating admin user...")
-            admin = User(email='admin@mapbahamas.com', is_admin=True)
-            admin.set_password('adminpass123')
-            db.session.add(admin)
-            db.session.commit()
-            logger.info("Admin user created successfully")
-        else:
-            # Update existing admin password
-            admin_user.set_password('adminpass123')
-            db.session.commit()
-            logger.info("Admin user password updated")
-
+        logger.info("Starting database initialization...")
+        initialize_database()
+        logger.info("Database initialization completed successfully")
     except Exception as e:
-        logger.error(f"Error during database initialization: {str(e)}")
+        logger.error(f"Failed to initialize database: {str(e)}")
         raise
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -346,7 +390,6 @@ def registration_details(id):
     return render_template('dashboard/registration_details.html', 
                          registration=registration,
                          now=datetime.utcnow())
-
 
 @app.route('/sponsor/<int:id>')
 def sponsor_profile(id):
