@@ -29,7 +29,7 @@ app.config['SECRET_KEY'] = os.environ.get("FLASK_SECRET_KEY") or "a secret key"
 db_url = os.environ.get("DATABASE_URL")
 if db_url:
     # Configure SQLAlchemy with SSL and connection pooling
-    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+    app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///site.db"
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
         "pool_pre_ping": True,
         "pool_recycle": 300,
