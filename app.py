@@ -28,7 +28,7 @@ app.debug = True
 
 # Configuration
 app.config['SECRET_KEY'] = os.environ.get("FLASK_SECRET_KEY") or "a secret key"
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", "sqlite:///app.db")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("REPLIT_DB_URL", "sqlite:///app.db")
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
@@ -57,14 +57,6 @@ def load_user(user_id):
 
 def initialize_database():
     with app.app_context():
-        @event.listens_for(db.engine, 'connect')
-        def connect(dbapi_connection, connection_record):
-            logger.info("Database connection established")
-
-        @event.listens_for(db.engine, 'disconnect')
-        def disconnect(dbapi_connection, connection_record):
-            logger.info("Database connection closed")
-
         db.create_all()
         
         # Create admin user if not exists
