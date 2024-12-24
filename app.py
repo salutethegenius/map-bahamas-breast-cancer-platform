@@ -77,6 +77,3 @@ def initialize_database():
 
 # Initialize database
 initialize_database()
-
-# [Rest of your routes and application code remains the same]
-[Previous route definitions and application code]
