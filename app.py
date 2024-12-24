@@ -9,21 +9,39 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from sqlalchemy.orm import DeclarativeBase
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class Base(DeclarativeBase):
     pass
 
-db = SQLAlchemy(model_class=Base)
+# Initialize Flask app first
 app = Flask(__name__)
-app.debug = True  # Enable debug mode to test the feature
+app.debug = True
 
 # Configuration
 app.config['SECRET_KEY'] = os.environ.get("FLASK_SECRET_KEY") or "a secret key"
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    "pool_recycle": 300,
-    "pool_pre_ping": True,
-}
+
+# Database configuration with SSL and connection pooling
+db_url = os.environ.get("DATABASE_URL")
+if db_url:
+    # Configure SQLAlchemy with SSL and connection pooling
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
+        "connect_args": {
+            "sslmode": "require",
+            "connect_timeout": 10
+        },
+    }
+else:
+    logger.error("DATABASE_URL environment variable is not set")
+    raise RuntimeError("Database configuration is missing")
+
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
@@ -34,7 +52,11 @@ app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 
-# Initialize Flask-Login
+# Initialize extensions after app configuration
+db = SQLAlchemy(model_class=Base)
+mail = Mail(app)
+
+# Initialize login manager
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -43,8 +65,37 @@ login_manager.login_view = 'login'
 def load_user(user_id):
     return db.session.get(User, int(user_id))
 
+# Initialize db with app
+db.init_app(app)
+
+# Rest of the imports
 from models import Company, User
 from forms import CompanyRegistrationForm, LoginForm
+
+# Create tables within app context
+with app.app_context():
+    try:
+        logger.info("Creating database tables...")
+        db.create_all()
+
+        # Create admin user if not exists
+        admin_user = User.query.filter_by(email='admin@mapbahamas.com').first()
+        if not admin_user:
+            logger.info("Creating admin user...")
+            admin = User(email='admin@mapbahamas.com', is_admin=True)
+            admin.set_password('adminpass123')
+            db.session.add(admin)
+            db.session.commit()
+            logger.info("Admin user created successfully")
+        else:
+            # Update existing admin password
+            admin_user.set_password('adminpass123')
+            db.session.commit()
+            logger.info("Admin user password updated")
+
+    except Exception as e:
+        logger.error(f"Error during database initialization: {str(e)}")
+        raise
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -66,11 +117,6 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
-db.init_app(app)
-mail = Mail(app)
-
-from models import Company
-from forms import CompanyRegistrationForm
 
 @app.route('/')
 def index():
@@ -262,19 +308,6 @@ def load_test_data():
     
     return redirect(url_for('index'))
 
-with app.app_context():
-    db.create_all()
-    # Recreate admin user
-    admin_user = User.query.filter_by(email='admin@mapbahamas.com').first()
-    if not admin_user:
-        admin = User(email='admin@mapbahamas.com', is_admin=True)
-        admin.set_password('adminpass123')
-        db.session.add(admin)
-        db.session.commit()
-    else:
-        # Update existing admin password
-        admin_user.set_password('adminpass123')
-        db.session.commit()
 
 @app.route('/dashboard')
 @login_required
