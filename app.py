@@ -10,6 +10,9 @@ from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from sqlalchemy.orm import DeclarativeBase
 import logging
+from sqlalchemy import event
+from sqlalchemy.exc import OperationalError
+from time import sleep
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -25,22 +28,33 @@ app.debug = True
 # Configuration
 app.config['SECRET_KEY'] = os.environ.get("FLASK_SECRET_KEY") or "a secret key"
 
-# Database configuration with SSL and connection pooling
-db_url = os.environ.get("DATABASE_URL")
-if db_url:
-    # Configure SQLAlchemy with SSL and connection pooling
-    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
-    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-        "pool_pre_ping": True,
-        "pool_recycle": 300,
-        "connect_args": {
-            "sslmode": "require",
-            "connect_timeout": 10
-        },
-    }
-else:
-    logger.error("DATABASE_URL environment variable is not set")
-    raise RuntimeError("Database configuration is missing")
+# Database configuration with connection retries
+MAX_RETRIES = 3
+RETRY_DELAY = 2
+
+def get_db_url_with_retry():
+    """Get database URL with retry logic"""
+    db_url = os.environ.get("DATABASE_URL")
+    if not db_url:
+        logger.error("DATABASE_URL environment variable is not set")
+        raise RuntimeError("Database configuration is missing")
+    return db_url
+
+# Configure SQLAlchemy with enhanced connection handling
+app.config['SQLALCHEMY_DATABASE_URI'] = get_db_url_with_retry()
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "pool_pre_ping": True,
+    "pool_recycle": 300,
+    "pool_timeout": 20,
+    "max_overflow": 5,
+    "connect_args": {
+        "connect_timeout": 10,
+        "keepalives": 1,
+        "keepalives_idle": 30,
+        "keepalives_interval": 10,
+        "keepalives_count": 5
+    },
+}
 
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
@@ -52,7 +66,7 @@ app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 
-# Initialize extensions after app configuration
+# Initialize extensions
 db = SQLAlchemy(model_class=Base)
 mail = Mail(app)
 
@@ -68,34 +82,56 @@ def load_user(user_id):
 # Initialize db with app
 db.init_app(app)
 
+# Database connection event listeners
+@event.listens_for(db.engine, 'connect')
+def connect(dbapi_connection, connection_record):
+    logger.info("Database connection established")
+
+@event.listens_for(db.engine, 'disconnect')
+def disconnect(dbapi_connection, connection_record):
+    logger.info("Database connection closed")
+
 # Rest of the imports
 from models import Company, User
 from forms import CompanyRegistrationForm, LoginForm
 
-# Create tables within app context
+# Create tables with retry logic
+def initialize_database():
+    retry_count = 0
+    while retry_count < MAX_RETRIES:
+        try:
+            logger.info("Attempting to create database tables...")
+            db.create_all()
+
+            # Create admin user if not exists
+            admin_user = User.query.filter_by(email='admin@mapbahamas.com').first()
+            if not admin_user:
+                logger.info("Creating admin user...")
+                admin = User(email='admin@mapbahamas.com', is_admin=True)
+                admin.set_password('adminpass123')
+                db.session.add(admin)
+                db.session.commit()
+                logger.info("Admin user created successfully")
+            else:
+                admin_user.set_password('adminpass123')
+                db.session.commit()
+                logger.info("Admin user password updated")
+            return True
+        except OperationalError as e:
+            retry_count += 1
+            logger.warning(f"Database connection attempt {retry_count} failed: {str(e)}")
+            if retry_count < MAX_RETRIES:
+                sleep(RETRY_DELAY)
+            else:
+                logger.error("Maximum retries reached. Could not connect to database.")
+                raise
+        except Exception as e:
+            logger.error(f"Unexpected error during database initialization: {str(e)}")
+            raise
+
+# Initialize database within app context
 with app.app_context():
-    try:
-        logger.info("Creating database tables...")
-        db.create_all()
-
-        # Create admin user if not exists
-        admin_user = User.query.filter_by(email='admin@mapbahamas.com').first()
-        if not admin_user:
-            logger.info("Creating admin user...")
-            admin = User(email='admin@mapbahamas.com', is_admin=True)
-            admin.set_password('adminpass123')
-            db.session.add(admin)
-            db.session.commit()
-            logger.info("Admin user created successfully")
-        else:
-            # Update existing admin password
-            admin_user.set_password('adminpass123')
-            db.session.commit()
-            logger.info("Admin user password updated")
-
-    except Exception as e:
-        logger.error(f"Error during database initialization: {str(e)}")
-        raise
+    initialize_database()
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
