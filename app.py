@@ -245,6 +245,24 @@ def dashboard():
                          total_miles=total_miles,
                          now=datetime.utcnow())
 
+@app.route('/reset_registrations')
+@login_required
+def reset_registrations():
+    if not current_user.is_admin:
+        flash('Access denied. Admin privileges required.', 'error')
+        return redirect(url_for('index'))
+
+    try:
+        Company.query.delete()
+        db.session.commit()
+        flash('All registrations have been reset successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error resetting registrations: {str(e)}")
+        flash('An error occurred while resetting registrations.', 'error')
+
+    return redirect(url_for('dashboard'))
+
 # Only initialize database when running directly
 if __name__ == '__main__':
     initialize_database()
