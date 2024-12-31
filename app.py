@@ -11,7 +11,7 @@ from sqlalchemy.exc import OperationalError
 from time import sleep
 
 from extensions import db
-from forms import CompanyRegistrationForm
+from forms import CompanyRegistrationForm, LoginForm # Added LoginForm import
 from models import Company, User
 
 # Set up logging
@@ -195,6 +195,55 @@ def register():
             flash('An error occurred during registration. Please try again.', 'error')
 
     return render_template('register.html', form=form)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and user.check_password(form.password.data):
+            login_user(user)
+            flash('Logged in successfully.', 'success')
+            next_page = request.args.get('next')
+            return redirect(next_page if next_page else url_for('dashboard'))
+        flash('Invalid email or password', 'error')
+    return render_template('auth/login.html', form=form)
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Logged out successfully.', 'success')
+    return redirect(url_for('index'))
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    if not current_user.is_admin:
+        flash('Access denied. Admin privileges required.', 'error')
+        return redirect(url_for('index'))
+
+    registrations = Company.query.all()
+    package_stats = {
+        'one_mile': Company.get_package_count('1mile'),
+        'half_mile': Company.get_package_count('halfmile'),
+        'quarter_mile': Company.get_package_count('quartermile'),
+        'black_friday': Company.get_package_count('black_friday')
+    }
+    total_miles = (package_stats['one_mile'] + 
+                  package_stats['half_mile'] * 0.5 + 
+                  package_stats['quarter_mile'] * 0.25 +
+                  package_stats['black_friday'])
+
+    return render_template('dashboard/index.html', 
+                         registrations=registrations,
+                         package_stats=package_stats,
+                         total_miles=total_miles,
+                         now=datetime.utcnow())
 
 # Only initialize database when running directly
 if __name__ == '__main__':
