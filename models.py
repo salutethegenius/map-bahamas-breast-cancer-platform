@@ -1,7 +1,7 @@
-from app import db
 from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from extensions import db
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -21,13 +21,13 @@ class Company(db.Model):
     address = db.Column(db.Text, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     phone = db.Column(db.String(20), nullable=False)
-    
+
     # Contact Person
     contact_name = db.Column(db.String(100), nullable=False)
     contact_email = db.Column(db.String(120), nullable=False)
     contact_phone = db.Column(db.String(20), nullable=False)
     contact_photo = db.Column(db.String(200))
-    
+
     # Sponsorship Details
     package_tier = db.Column(db.String(50), nullable=False)
     is_black_friday = db.Column(db.Boolean, default=False)
@@ -39,7 +39,7 @@ class Company(db.Model):
     def get_package_count(package_tier):
         """Get the count of registrations for a specific package tier"""
         return Company.query.filter_by(package_tier=package_tier).count()
-    
+
     @staticmethod
     def check_registration_availability(package_tier):
         """Check if registration is available for the selected package"""

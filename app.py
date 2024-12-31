@@ -3,22 +3,20 @@ import csv
 import os
 from datetime import datetime
 from flask import Flask, render_template, request, flash, redirect, url_for, Response
-from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail, Message
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
-from sqlalchemy.orm import DeclarativeBase
 import logging
 from sqlalchemy.exc import OperationalError
 from time import sleep
 
+from extensions import db
+from forms import CompanyRegistrationForm
+from models import Company, User
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-class Base(DeclarativeBase):
-    pass
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -35,11 +33,13 @@ def get_database_url():
         logger.error("DATABASE_URL environment variable is not set")
         raise RuntimeError("Database configuration is missing")
 
-    # If using postgres:// convert to postgresql://
+    # Handle different URL formats
     if db_url.startswith('postgres://'):
         db_url = db_url.replace('postgres://', 'postgresql://', 1)
-    elif db_url.startswith('https://'):
-        # Extract the relevant parts from the URL
+
+    # Ensure we're using the correct database URL format
+    if not any(db_url.startswith(prefix) for prefix in ['postgresql://', 'postgres://']):
+        logger.info("Constructing database URL from components...")
         db_url = f"postgresql://{os.environ.get('PGUSER')}:{os.environ.get('PGPASSWORD')}@{os.environ.get('PGHOST')}:{os.environ.get('PGPORT')}/{os.environ.get('PGDATABASE')}"
 
     logger.info(f"Using database type: {db_url.split('://')[0]}")
@@ -52,13 +52,14 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     "pool_recycle": 300,    # Recycle connections every 5 minutes
     "pool_timeout": 20,     # Connection timeout after 20 seconds
     "max_overflow": 5,      # Allow up to 5 connections beyond pool size
+    "pool_size": 10,        # Set a reasonable pool size
     "connect_args": {
         "connect_timeout": 10,
         "keepalives": 1,
         "keepalives_idle": 30,
         "keepalives_interval": 10,
         "keepalives_count": 5
-    },
+    }
 }
 
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
@@ -72,7 +73,6 @@ app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 
 # Initialize extensions
-db = SQLAlchemy(model_class=Base)
 mail = Mail(app)
 login_manager = LoginManager()
 
@@ -81,17 +81,16 @@ db.init_app(app)
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-from models import Company, User
-
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
 
 def initialize_database():
+    """Initialize database with retry mechanism"""
     with app.app_context():
         retry_count = 0
         max_retries = 3
-        retry_delay = 2
+        retry_delay = 2  # seconds
 
         while retry_count < max_retries:
             try:
@@ -118,6 +117,7 @@ def initialize_database():
                 retry_count += 1
                 logger.warning(f"Database connection attempt {retry_count} failed: {str(e)}")
                 if retry_count < max_retries:
+                    logger.info(f"Retrying in {retry_delay} seconds...")
                     sleep(retry_delay)
                 else:
                     logger.error("Maximum retries reached. Could not connect to database.")
@@ -125,6 +125,76 @@ def initialize_database():
             except Exception as e:
                 logger.error(f"Unexpected error during database initialization: {str(e)}")
                 raise
+
+@app.route('/')
+def index():
+    package_stats = {
+        'one_mile': Company.get_package_count('1mile'),
+        'half_mile': Company.get_package_count('halfmile'),
+        'quarter_mile': Company.get_package_count('quartermile'),
+        'black_friday': Company.get_package_count('black_friday')
+    }
+    return render_template('index.html', package_stats=package_stats)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = CompanyRegistrationForm()
+    if form.validate_on_submit():
+        try:
+            # Check Black Friday availability
+            if form.package_tier.data == 'black_friday':
+                available, remaining = Company.check_registration_availability('black_friday')
+                if not available:
+                    flash('Black Friday special is no longer available', 'error')
+                    return redirect(url_for('register'))
+
+            # Create new company
+            company = Company(
+                name=form.company_name.data,
+                address=form.company_address.data,
+                email=form.company_email.data,
+                phone=form.company_phone.data,
+                contact_name=form.contact_name.data,
+                contact_email=form.contact_email.data,
+                contact_phone=form.contact_phone.data,
+                package_tier=form.package_tier.data,
+                is_black_friday=(form.package_tier.data == 'black_friday')
+            )
+
+            # Handle contact photo
+            if form.contact_photo.data:
+                filename = secure_filename(form.contact_photo.data.filename)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                form.contact_photo.data.save(filepath)
+                company.contact_photo = os.path.join('uploads', filename)
+
+            # Set payment date
+            payment_date = request.form.get('payment_date')
+            if payment_date:
+                company.payment_date = datetime.strptime(payment_date, '%Y-%m-%d')
+
+            db.session.add(company)
+            db.session.commit()
+
+            # Send confirmation email
+            try:
+                msg = Message('Registration Confirmation',
+                            sender='noreply@mapbahamas.com',
+                            recipients=[company.email])
+                msg.body = f'Thank you for registering as a {company.package_tier} sponsor!'
+                mail.send(msg)
+            except Exception as e:
+                logger.error(f"Failed to send confirmation email: {str(e)}")
+
+            flash('Registration successful!', 'success')
+            return redirect(url_for('index'))
+
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Registration error: {str(e)}")
+            flash('An error occurred during registration. Please try again.', 'error')
+
+    return render_template('register.html', form=form)
 
 # Only initialize database when running directly
 if __name__ == '__main__':
